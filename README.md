@@ -1,6 +1,6 @@
 # EBM Paper Tracker
 
-Track energy-based model research (Yilun Du style) with two-stage filtering, LLM summaries, and an interactive UMAP visualization.
+Track research papers posted on arxiv with two-stage filtering based on the papers you choose, LLM summaries, and an interactive UMAP visualization.
 
 ## Quick Start
 
