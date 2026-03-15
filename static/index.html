@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EBM Paper Tracker</title>
+<script src="https://cdn.plot.ly/plotly-2.35.0.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2d3348;
+    --text: #e4e6ed;
+    --text-dim: #8890a4;
+    --accent: #6366f1;
+    --accent-hover: #818cf8;
+    --green: #34d399;
+    --orange: #fb923c;
+    --red: #f87171;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* ── Layout ─────────────────────────────────────────────────── */
+  .app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+    gap: 0;
+  }
+
+  .header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+
+  .header h1 span { color: var(--accent); }
+
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+
+  .stats {
+    font-size: 12px;
+    color: var(--text-dim);
+    display: flex;
+    gap: 16px;
+  }
+
+  .stats .num { color: var(--accent); font-weight: 600; }
+
+  /* ── Panels ─────────────────────────────────────────────────── */
+  .panel-left {
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .panel-right {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .panel-header h2 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+  }
+
+  /* ── Search & Controls ──────────────────────────────────────── */
+  .search-bar {
+    flex: 1;
+    min-width: 200px;
+    padding: 7px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-bar:focus { border-color: var(--accent); }
+
+  .btn {
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+
+  /* ── Add Paper Form ─────────────────────────────────────────── */
+  .add-form {
+    display: none;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+    align-items: center;
+  }
+
+  .add-form.open { display: flex; }
+
+  .add-form input {
+    flex: 1;
+    padding: 7px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+  }
+
+  .add-form input:focus { border-color: var(--accent); }
+
+  .add-status {
+    font-size: 12px;
+    padding: 4px 0;
+    color: var(--green);
+  }
+
+  .add-status.error { color: var(--red); }
+
+  /* ── Paper List ─────────────────────────────────────────────── */
+  .paper-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .paper-card {
+    padding: 14px 16px;
+    margin-bottom: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .paper-card:hover { border-color: var(--accent); transform: translateX(2px); }
+  .paper-card.active { border-color: var(--accent); background: var(--surface2); }
+
+  .paper-card .title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    line-height: 1.35;
+  }
+
+  .paper-card .authors {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .paper-card .summary {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .paper-card .meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--accent);
+  }
+
+  .tag.manual {
+    background: rgba(251, 146, 60, 0.15);
+    color: var(--orange);
+  }
+
+  .score {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .paper-card .links {
+    margin-top: 8px;
+    display: flex;
+    gap: 12px;
+  }
+
+  .paper-card .links a {
+    font-size: 12px;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .paper-card .links a:hover { text-decoration: underline; }
+
+  /* ── Viz Panel ──────────────────────────────────────────────── */
+  .viz-container {
+    flex: 1;
+    position: relative;
+    background: var(--bg);
+  }
+
+  .viz-container .js-plotly-plot {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .viz-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-dim);
+    font-size: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  /* ── Loading ────────────────────────────────────────────────── */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 10px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Responsive ─────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .app {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr 1fr;
+    }
+    .panel-left { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1><span>⚡</span> EBM Paper Tracker</h1>
+    </div>
+    <div class="header-actions">
+      <div class="stats" id="stats"></div>
+      <button class="btn" onclick="toggleAddForm()">+ Add Paper</button>
+      <button class="btn" onclick="runDeepSearch()">Deep Search (1yr)</button>
+      <button class="btn" onclick="runIngest()">Refresh</button>
+    </div>
+  </div>
+
+  <!-- Left Panel: Paper Feed -->
+  <div class="panel-left">
+    <div class="panel-header">
+      <h2>Papers</h2>
+      <input class="search-bar" type="text" placeholder="Search papers..."
+             id="searchInput" oninput="handleSearch()" />
+    </div>
+    <div class="add-form" id="addForm">
+      <input type="text" id="arxivInput" placeholder="Arxiv ID or URL (e.g. 2301.12345)" />
+      <button class="btn btn-primary" onclick="addPaper()">Add</button>
+      <button class="btn" onclick="toggleAddForm()">Cancel</button>
+    </div>
+    <div id="addStatus" class="add-status" style="padding: 0 16px;"></div>
+    <div class="paper-list" id="paperList">
+      <div class="loading"><div class="spinner"></div>Loading papers...</div>
+    </div>
+  </div>
+
+  <!-- Right Panel: Visualization -->
+  <div class="panel-right">
+    <div class="panel-header">
+      <h2>Research Landscape</h2>
+      <button class="btn" onclick="recomputeUmap()">Recompute UMAP</button>
+    </div>
+    <div class="viz-container" id="vizContainer">
+      <div class="loading"><div class="spinner"></div>Loading visualization...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let allPapers = [];
+let vizData = [];
+
+// ── Fetch Data ──────────────────────────────────────────────────────────────
+
+async function fetchPapers() {
+  try {
+    const res = await fetch('/api/papers?limit=500');
+    const data = await res.json();
+    allPapers = data.papers;
+    renderPapers(allPapers);
+    updateStats();
+  } catch (e) {
+    document.getElementById('paperList').innerHTML =
+      '<div class="loading" style="color: var(--red)">Failed to load papers</div>';
+  }
+}
+
+async function fetchViz() {
+  try {
+    const res = await fetch('/api/viz');
+    const data = await res.json();
+    vizData = Array.isArray(data) ? data : (data.papers || []);
+    renderViz(vizData);
+  } catch (e) {
+    document.getElementById('vizContainer').innerHTML =
+      '<div class="viz-empty">Failed to load visualization</div>';
+  }
+}
+
+async function updateStats() {
+  try {
+    const res = await fetch('/api/stats');
+    const s = await res.json();
+    document.getElementById('stats').innerHTML = `
+      <span><span class="num">${s.total_papers}</span> papers</span>
+      <span><span class="num">${s.arxiv_papers}</span> arxiv</span>
+      <span><span class="num">${s.manual_papers}</span> manual</span>
+    `;
+  } catch (e) {}
+}
+
+// ── Render Papers ───────────────────────────────────────────────────────────
+
+function renderPapers(papers) {
+  const list = document.getElementById('paperList');
+
+  if (!papers.length) {
+    list.innerHTML = '<div class="viz-empty">No papers found. Run ingest or add papers manually.</div>';
+    return;
+  }
+
+  list.innerHTML = papers.map((p, i) => {
+    const authors = (p.authors || []).slice(0, 3).join(', ');
+    const moreAuthors = (p.authors || []).length > 3 ? ` +${p.authors.length - 3}` : '';
+    const keywords = (p.keywords || []).map(k =>
+      `<span class="tag">${k}</span>`
+    ).join('');
+    const sourceTag = p.source === 'manual'
+      ? '<span class="tag manual">manual</span>'
+      : '';
+    const score = p.similarity_score
+      ? `<span class="score">${(p.similarity_score * 100).toFixed(0)}% match</span>`
+      : '';
+    const date = p.published ? new Date(p.published).toLocaleDateString() : '';
+
+    return `
+      <div class="paper-card" onclick="highlightViz('${p.arxiv_id}')">
+        <div class="title">${escHtml(p.title)}</div>
+        <div class="authors">${escHtml(authors + moreAuthors)} · ${date}</div>
+        <div class="summary">${escHtml(p.summary || p.abstract || '')}</div>
+        <div class="meta">
+          ${keywords} ${sourceTag} ${score}
+        </div>
+        <div class="links">
+          <a href="${p.url}" target="_blank" rel="noopener">Paper ↗</a>
+          <a href="${p.pdf_url}" target="_blank" rel="noopener">PDF ↗</a>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+// ── Search ──────────────────────────────────────────────────────────────────
+
+function handleSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  if (!q) {
+    renderPapers(allPapers);
+    return;
+  }
+
+  const filtered = allPapers.filter(p =>
+    p.title.toLowerCase().includes(q) ||
+    (p.summary || '').toLowerCase().includes(q) ||
+    (p.keywords || []).some(k => k.toLowerCase().includes(q)) ||
+    (p.authors || []).some(a => a.toLowerCase().includes(q))
+  );
+  renderPapers(filtered);
+}
+
+// ── Add Paper ───────────────────────────────────────────────────────────────
+
+function toggleAddForm() {
+  const form = document.getElementById('addForm');
+  form.classList.toggle('open');
+  document.getElementById('addStatus').textContent = '';
+  if (form.classList.contains('open')) {
+    document.getElementById('arxivInput').focus();
+  }
+}
+
+async function addPaper() {
+  const input = document.getElementById('arxivInput');
+  const status = document.getElementById('addStatus');
+  const arxivId = input.value.trim();
+
+  if (!arxivId) return;
+
+  status.className = 'add-status';
+  status.textContent = 'Adding paper...';
+
+  try {
+    const res = await fetch('/api/papers/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ arxiv_id: arxivId }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      status.className = 'add-status';
+      status.textContent = data.status === 'exists'
+        ? `Already tracked: ${data.paper.title}`
+        : `Added: ${data.paper.title}`;
+      input.value = '';
+      await fetchPapers();
+    } else {
+      status.className = 'add-status error';
+      status.textContent = data.detail || 'Failed to add paper';
+    }
+  } catch (e) {
+    status.className = 'add-status error';
+    status.textContent = 'Network error';
+  }
+}
+
+// ── Visualization ───────────────────────────────────────────────────────────
+
+function renderViz(data) {
+  const container = document.getElementById('vizContainer');
+
+  if (!data || !data.length) {
+    container.innerHTML = '<div class="viz-empty">No visualization data yet.<br>Need at least 5 papers with embeddings.<br>Run ingest and recompute UMAP.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+
+  const colors = data.map(d => d.similarity_score || 0.5);
+  const texts = data.map(d => {
+    const authors = (d.authors || []).slice(0, 2).join(', ');
+    const kws = (d.keywords || []).slice(0, 3).join(', ');
+    return `<b>${truncate(d.title, 60)}</b><br>${authors}<br><i>${kws}</i><br>Sim: ${((d.similarity_score || 0) * 100).toFixed(0)}%`;
+  });
+
+  const sizes = data.map(d => {
+    const s = d.similarity_score || 0.5;
+    return 6 + s * 14;
+  });
+
+  const trace = {
+    x: data.map(d => d.x),
+    y: data.map(d => d.y),
+    mode: 'markers',
+    type: 'scattergl',
+    text: texts,
+    hoverinfo: 'text',
+    marker: {
+      size: sizes,
+      color: colors,
+      colorscale: [
+        [0, '#3b3f5c'],
+        [0.5, '#6366f1'],
+        [1, '#34d399']
+      ],
+      cmin: 0.3,
+      cmax: 1,
+      line: { width: 0.5, color: '#1a1d27' },
+      opacity: 0.85,
+    },
+    customdata: data.map(d => d.url),
+  };
+
+  const layout = {
+    paper_bgcolor: '#0f1117',
+    plot_bgcolor: '#0f1117',
+    margin: { t: 20, r: 20, b: 30, l: 30 },
+    xaxis: {
+      showgrid: false,
+      zeroline: false,
+      showticklabels: false,
+      title: '',
+    },
+    yaxis: {
+      showgrid: false,
+      zeroline: false,
+      showticklabels: false,
+      title: '',
+    },
+    hoverlabel: {
+      bgcolor: '#1a1d27',
+      bordercolor: '#6366f1',
+      font: { color: '#e4e6ed', size: 12 },
+    },
+    dragmode: 'pan',
+  };
+
+  const config = {
+    responsive: true,
+    displayModeBar: true,
+    modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d'],
+    displaylogo: false,
+    scrollZoom: true,
+  };
+
+  Plotly.newPlot(container, [trace], layout, config);
+
+  // Click to open paper
+  container.on('plotly_click', function(evtData) {
+    if (evtData.points && evtData.points[0]) {
+      const url = evtData.points[0].customdata;
+      if (url) window.open(url, '_blank');
+    }
+  });
+}
+
+function truncate(s, n) {
+  return s && s.length > n ? s.substring(0, n) + '...' : (s || '');
+}
+
+function highlightViz(arxivId) {
+  // Scroll viz to highlight a specific paper
+  const idx = vizData.findIndex(d => d.arxiv_id === arxivId);
+  if (idx < 0) return;
+
+  const container = document.getElementById('vizContainer');
+  const update = {
+    'marker.size': [vizData.map((d, i) =>
+      i === idx ? 22 : (6 + (d.similarity_score || 0.5) * 14)
+    )],
+    'marker.line.width': [vizData.map((d, i) =>
+      i === idx ? 3 : 0.5
+    )],
+    'marker.line.color': [vizData.map((d, i) =>
+      i === idx ? '#fb923c' : '#1a1d27'
+    )],
+  };
+  Plotly.restyle(container, update, [0]);
+
+  // Reset after 3 seconds
+  setTimeout(() => {
+    const reset = {
+      'marker.size': [vizData.map(d => 6 + (d.similarity_score || 0.5) * 14)],
+      'marker.line.width': [vizData.map(() => 0.5)],
+      'marker.line.color': [vizData.map(() => '#1a1d27')],
+    };
+    Plotly.restyle(container, reset, [0]);
+  }, 3000);
+}
+
+// ── Actions ─────────────────────────────────────────────────────────────────
+
+async function runDeepSearch() {
+  const btn = event.target;
+  btn.textContent = 'Searching...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/deep-search?months=12', { method: 'POST' });
+    const data = await res.json();
+    btn.textContent = `Found ${data.new_papers} papers!`;
+    await fetchPapers();
+    await fetchViz();
+    setTimeout(() => { btn.textContent = 'Deep Search (1yr)'; }, 3000);
+  } catch (e) {
+    console.error('Deep search failed:', e);
+    btn.textContent = 'Failed';
+    setTimeout(() => { btn.textContent = 'Deep Search (1yr)'; }, 3000);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function runIngest() {
+  const btn = event.target;
+  btn.textContent = 'Running...';
+  btn.disabled = true;
+  try {
+    await fetch('/api/ingest', { method: 'POST' });
+    await fetchPapers();
+    await fetchViz();
+  } catch (e) {
+    console.error('Ingest failed:', e);
+  } finally {
+    btn.textContent = 'Refresh';
+    btn.disabled = false;
+  }
+}
+
+async function recomputeUmap() {
+  const btn = event.target;
+  btn.textContent = 'Computing...';
+  btn.disabled = true;
+  try {
+    await fetch('/api/umap/recompute', { method: 'POST' });
+    await fetchViz();
+  } catch (e) {
+    console.error('UMAP recompute failed:', e);
+  } finally {
+    btn.textContent = 'Recompute UMAP';
+    btn.disabled = false;
+  }
+}
+
+// ── Keyboard shortcuts ──────────────────────────────────────────────────────
+
+document.addEventListener('keydown', (e) => {
+  // Ctrl+K or Cmd+K to focus search
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+  // Escape to close add form
+  if (e.key === 'Escape') {
+    const form = document.getElementById('addForm');
+    if (form.classList.contains('open')) toggleAddForm();
+  }
+});
+
+// Enter in add paper input
+document.getElementById('arxivInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') addPaper();
+});
+
+// ── Init ────────────────────────────────────────────────────────────────────
+
+fetchPapers();
+fetchViz();
+</script>
+</body>
+</html>
