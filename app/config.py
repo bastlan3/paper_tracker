@@ -33,6 +33,10 @@ class Settings:
     WEEKLY_UMAP_DAY: str = os.getenv("WEEKLY_UMAP_DAY", "monday")
     DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{DATA_DIR / 'ebm_tracker.db'}")
 
+    # Semantic Scholar (optional — higher rate limits with a free key)
+    # Register at: https://www.semanticscholar.org/product/api
+    SEMANTIC_SCHOLAR_API_KEY: str = os.getenv("SEMANTIC_SCHOLAR_API_KEY", "")
+
     # Arxiv search config
     ARXIV_CATEGORIES: list[str] = ["cs.LG", "cs.AI", "stat.ML"]
     ARXIV_KEYWORDS: list[str] = [

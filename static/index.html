@@ -293,6 +293,303 @@
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* ── Tabs ───────────────────────────────────────────────────── */
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .nav-tab {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active {
+    background: rgba(99,102,241,0.15);
+    color: var(--accent);
+    border-color: rgba(99,102,241,0.3);
+  }
+
+  /* ── Literature Review ───────────────────────────────────────── */
+  .lit-view {
+    grid-column: 1 / -1;
+    display: none;
+    grid-template-columns: 360px 1fr;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .lit-view.active { display: grid; }
+
+  .tracker-view {
+    display: contents;
+  }
+
+  .tracker-view.hidden > * { display: none; }
+
+  .lit-sidebar {
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .lit-main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .lit-form {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .lit-form label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+    display: block;
+  }
+
+  .lit-form textarea,
+  .lit-form input[type="text"],
+  .lit-form input[type="number"],
+  .lit-form select {
+    width: 100%;
+    padding: 7px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.15s;
+  }
+
+  .lit-form textarea:focus,
+  .lit-form input:focus,
+  .lit-form select:focus { border-color: var(--accent); }
+
+  .lit-form .row { display: flex; gap: 8px; }
+  .lit-form .row > * { flex: 1; }
+
+  .lit-session-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .lit-session-card {
+    padding: 12px 14px;
+    margin-bottom: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .lit-session-card:hover { border-color: var(--accent); }
+  .lit-session-card.active { border-color: var(--accent); background: var(--surface2); }
+
+  .lit-session-card .s-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lit-session-card .s-meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .status-badge {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .status-badge.running    { background: rgba(99,102,241,0.2); color: var(--accent); }
+  .status-badge.completed  { background: rgba(52,211,153,0.2); color: var(--green); }
+  .status-badge.stopped    { background: rgba(251,146,60,0.2); color: var(--orange); }
+  .status-badge.error      { background: rgba(248,113,113,0.2); color: var(--red); }
+  .status-badge.created    { background: rgba(136,144,164,0.15); color: var(--text-dim); }
+  .status-badge.generating { background: rgba(99,102,241,0.2); color: var(--accent); }
+
+  .progress-bar-wrap {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* Detail pane */
+  .lit-detail-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .lit-detail-header h2 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    flex: 1;
+  }
+
+  .lit-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .lit-tab {
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .lit-tab.active { background: rgba(99,102,241,0.15); color: var(--accent); border-color: rgba(99,102,241,0.3); }
+  .lit-tab:hover:not(.active) { color: var(--text); }
+
+  .lit-detail-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+  }
+
+  /* Papers table */
+  .papers-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .papers-table th {
+    text-align: left;
+    padding: 6px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+  }
+
+  .papers-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(45,51,72,0.5);
+    vertical-align: top;
+  }
+
+  .papers-table tr:hover td { background: rgba(99,102,241,0.04); }
+
+  .papers-table .p-title { font-weight: 500; color: var(--text); }
+  .papers-table .p-authors { color: var(--text-dim); font-size: 11px; margin-top: 2px; }
+  .papers-table .p-reason { color: var(--text-dim); font-style: italic; margin-top: 3px; font-size: 11px; }
+
+  /* Review text */
+  .review-body {
+    padding: 20px 24px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    max-width: 820px;
+  }
+
+  .review-body h1, .review-body h2 { margin: 24px 0 10px; color: var(--text); }
+  .review-body h1 { font-size: 20px; }
+  .review-body h2 { font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  .review-body h3 { font-size: 14px; margin: 16px 0 6px; color: var(--accent); }
+  .review-body p { margin-bottom: 12px; }
+  .review-body hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .review-body em { color: var(--accent-hover); font-style: normal; }
+
+  .review-copy-bar {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .session-stats {
+    display: flex;
+    gap: 16px;
+    padding: 10px 16px;
+    font-size: 12px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .session-stats .stat-item { display: flex; flex-direction: column; gap: 2px; }
+  .session-stats .stat-num { font-size: 18px; font-weight: 700; color: var(--accent); }
+  .session-stats .stat-lbl { color: var(--text-dim); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .empty-detail {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-dim);
+    font-size: 14px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
   /* ── Responsive ─────────────────────────────────────────────── */
   @media (max-width: 900px) {
     .app {
@@ -300,6 +597,8 @@
       grid-template-rows: auto 1fr 1fr;
     }
     .panel-left { border-right: none; border-bottom: 1px solid var(--border); }
+    .lit-view { grid-template-columns: 1fr; }
+    .lit-sidebar { border-right: none; border-bottom: 1px solid var(--border); max-height: 300px; }
   }
 </style>
 </head>
@@ -307,10 +606,14 @@
 <div class="app">
   <!-- Header -->
   <div class="header">
-    <div>
+    <div style="display:flex;align-items:center;gap:20px;">
       <h1><span>⚡</span> EBM Paper Tracker</h1>
+      <div class="nav-tabs">
+        <button class="nav-tab active" id="tab-tracker" onclick="switchTab('tracker')">Tracker</button>
+        <button class="nav-tab" id="tab-litreview" onclick="switchTab('litreview')">Literature Review</button>
+      </div>
     </div>
-    <div class="header-actions">
+    <div class="header-actions" id="tracker-actions">
       <div class="stats" id="stats"></div>
       <button class="btn" onclick="toggleAddForm()">+ Add Paper</button>
       <button class="btn" onclick="runDeepSearch()">Deep Search (1yr)</button>
@@ -318,34 +621,153 @@
     </div>
   </div>
 
-  <!-- Left Panel: Paper Feed -->
-  <div class="panel-left">
-    <div class="panel-header">
-      <h2>Papers</h2>
-      <input class="search-bar" type="text" placeholder="Search papers..."
-             id="searchInput" oninput="handleSearch()" />
+  <!-- ── Tracker View ──────────────────────────────────────────── -->
+  <div class="tracker-view" id="tracker-view">
+    <!-- Left Panel: Paper Feed -->
+    <div class="panel-left">
+      <div class="panel-header">
+        <h2>Papers</h2>
+        <input class="search-bar" type="text" placeholder="Search papers..."
+               id="searchInput" oninput="handleSearch()" />
+      </div>
+      <div class="add-form" id="addForm">
+        <input type="text" id="arxivInput" placeholder="Arxiv ID or URL (e.g. 2301.12345)" />
+        <button class="btn btn-primary" onclick="addPaper()">Add</button>
+        <button class="btn" onclick="toggleAddForm()">Cancel</button>
+      </div>
+      <div id="addStatus" class="add-status" style="padding: 0 16px;"></div>
+      <div class="paper-list" id="paperList">
+        <div class="loading"><div class="spinner"></div>Loading papers...</div>
+      </div>
     </div>
-    <div class="add-form" id="addForm">
-      <input type="text" id="arxivInput" placeholder="Arxiv ID or URL (e.g. 2301.12345)" />
-      <button class="btn btn-primary" onclick="addPaper()">Add</button>
-      <button class="btn" onclick="toggleAddForm()">Cancel</button>
-    </div>
-    <div id="addStatus" class="add-status" style="padding: 0 16px;"></div>
-    <div class="paper-list" id="paperList">
-      <div class="loading"><div class="spinner"></div>Loading papers...</div>
+
+    <!-- Right Panel: Visualization -->
+    <div class="panel-right">
+      <div class="panel-header">
+        <h2>Research Landscape</h2>
+        <button class="btn" onclick="recomputeUmap()">Recompute UMAP</button>
+      </div>
+      <div class="viz-container" id="vizContainer">
+        <div class="loading"><div class="spinner"></div>Loading visualization...</div>
+      </div>
     </div>
   </div>
 
-  <!-- Right Panel: Visualization -->
-  <div class="panel-right">
-    <div class="panel-header">
-      <h2>Research Landscape</h2>
-      <button class="btn" onclick="recomputeUmap()">Recompute UMAP</button>
+  <!-- ── Literature Review View ──────────────────────────────────── -->
+  <div class="lit-view" id="litreview-view">
+
+    <!-- Sidebar: create form + session list -->
+    <div class="lit-sidebar">
+      <div class="lit-form">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px;">New Literature Review</div>
+
+        <div>
+          <label>Seed paper (arxiv ID, DOI, or title)</label>
+          <input type="text" id="lr-query" placeholder="e.g. 1903.08689 or 'Energy-Based Models'" />
+        </div>
+
+        <div>
+          <label>Research field / scope</label>
+          <textarea id="lr-field" rows="3"
+            placeholder="Describe the research field this review should cover. Be specific — e.g. 'Energy-based models for compositional visual generation, including training methods, sampling, and applications to scene understanding.'"></textarea>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Max papers (blank = unlimited)</label>
+            <input type="number" id="lr-maxpapers" placeholder="e.g. 50" min="1" max="500" />
+          </div>
+          <div>
+            <label>Citation format</label>
+            <select id="lr-citfmt">
+              <option value="APA">APA</option>
+              <option value="IEEE">IEEE</option>
+              <option value="Nature">Nature</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Research model</label>
+            <select id="lr-research-model">
+              <optgroup label="Free">
+                <option value="mistral|open-mistral-nemo">Mistral Nemo (free)</option>
+                <option value="mistral|mistral-small-latest">Mistral Small (free)</option>
+              </optgroup>
+              <optgroup label="Paid">
+                <option value="anthropic|claude-haiku-4-5-20251001">Claude Haiku 4.5</option>
+                <option value="anthropic|claude-sonnet-4-6">Claude Sonnet 4.6</option>
+                <option value="openai|gpt-4o-mini">GPT-4o mini</option>
+                <option value="openai|gpt-4o">GPT-4o</option>
+              </optgroup>
+            </select>
+          </div>
+          <div>
+            <label>Writing model</label>
+            <select id="lr-writing-model">
+              <optgroup label="Free">
+                <option value="mistral|mistral-large-latest">Mistral Large (free tier)</option>
+              </optgroup>
+              <optgroup label="Paid">
+                <option value="anthropic|claude-sonnet-4-6">Claude Sonnet 4.6</option>
+                <option value="anthropic|claude-opus-4-6">Claude Opus 4.6</option>
+                <option value="openai|gpt-4o">GPT-4o</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="createLitReview()">Start Literature Review</button>
+        <div id="lr-create-status" style="font-size:12px;color:var(--green);min-height:16px;"></div>
+      </div>
+
+      <div class="lit-session-list" id="lr-session-list">
+        <div class="loading"><div class="spinner"></div>Loading sessions...</div>
+      </div>
     </div>
-    <div class="viz-container" id="vizContainer">
-      <div class="loading"><div class="spinner"></div>Loading visualization...</div>
+
+    <!-- Main: session detail -->
+    <div class="lit-main" id="lr-detail">
+      <div class="empty-detail" id="lr-empty">
+        <div style="font-size:32px;opacity:0.3;">📄</div>
+        <div>Select or create a literature review session</div>
+      </div>
+
+      <!-- Detail UI (hidden until a session is selected) -->
+      <div id="lr-detail-inner" style="display:none;display:flex;flex-direction:column;height:100%;">
+        <div class="session-stats" id="lr-stats-bar"></div>
+
+        <div class="lit-detail-header">
+          <h2 id="lr-detail-title">Session</h2>
+          <div class="lit-tabs">
+            <button class="lit-tab active" id="ltab-papers" onclick="switchLitTab('papers')">Papers</button>
+            <button class="lit-tab" id="ltab-review" onclick="switchLitTab('review')">Review</button>
+          </div>
+          <div id="lr-action-btns" style="display:flex;gap:6px;"></div>
+        </div>
+
+        <!-- Papers tab -->
+        <div id="lr-papers-pane" style="flex:1;overflow-y:auto;">
+          <div id="lr-papers-content"></div>
+        </div>
+
+        <!-- Review tab -->
+        <div id="lr-review-pane" style="display:none;flex:1;overflow-y:auto;">
+          <div class="review-body" id="lr-review-text">
+            <div class="viz-empty">Review not yet generated.<br>Complete triage then click "Generate Review".</div>
+          </div>
+        </div>
+
+        <div class="review-copy-bar" id="lr-copy-bar" style="display:none;">
+          <button class="btn" onclick="copyReview()">Copy Markdown</button>
+          <button class="btn" onclick="downloadReview()">Download .md</button>
+          <span id="lr-copy-msg" style="color:var(--green);"></span>
+        </div>
+      </div>
     </div>
   </div>
+
 </div>
 
 <script>
@@ -699,6 +1121,374 @@ document.addEventListener('keydown', (e) => {
 document.getElementById('arxivInput').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') addPaper();
 });
+
+// ── Tab switching ────────────────────────────────────────────────────────────
+
+function switchTab(tab) {
+  const trackerView = document.getElementById('tracker-view');
+  const litView = document.getElementById('litreview-view');
+  const trackerActions = document.getElementById('tracker-actions');
+
+  document.getElementById('tab-tracker').classList.toggle('active', tab === 'tracker');
+  document.getElementById('tab-litreview').classList.toggle('active', tab === 'litreview');
+
+  if (tab === 'tracker') {
+    // Show tracker panels (restore display:contents)
+    trackerView.style.display = 'contents';
+    litView.classList.remove('active');
+    trackerActions.style.display = 'flex';
+  } else {
+    trackerView.style.display = 'none';
+    litView.classList.add('active');
+    trackerActions.style.display = 'none';
+    loadLitSessions();
+  }
+}
+
+// ── Literature Review state ──────────────────────────────────────────────────
+
+let currentLitSession = null;
+let litPollTimer = null;
+let currentLitReviewText = '';
+
+// ── Create session ────────────────────────────────────────────────────────────
+
+async function createLitReview() {
+  const query = document.getElementById('lr-query').value.trim();
+  const field = document.getElementById('lr-field').value.trim();
+  if (!query || !field) {
+    document.getElementById('lr-create-status').textContent = 'Please fill in the seed paper and field description.';
+    document.getElementById('lr-create-status').style.color = 'var(--red)';
+    return;
+  }
+
+  const maxPapers = document.getElementById('lr-maxpapers').value;
+  const citFmt = document.getElementById('lr-citfmt').value;
+  const [rProv, rMdl] = document.getElementById('lr-research-model').value.split('|');
+  const [wProv, wMdl] = document.getElementById('lr-writing-model').value.split('|');
+
+  const statusEl = document.getElementById('lr-create-status');
+  statusEl.style.color = 'var(--accent)';
+  statusEl.textContent = 'Creating session...';
+
+  try {
+    const res = await fetch('/api/lit-review/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        field_description: field,
+        initial_query: query,
+        max_papers: maxPapers ? parseInt(maxPapers) : null,
+        research_model_provider: rProv,
+        research_model_name: rMdl,
+        writing_model_provider: wProv,
+        writing_model_name: wMdl,
+        citation_format: citFmt,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Failed');
+
+    statusEl.style.color = 'var(--green)';
+    statusEl.textContent = 'Session created! Starting triage...';
+
+    // Start processing immediately
+    await fetch(`/api/lit-review/sessions/${data.session.id}/start`, { method: 'POST' });
+
+    await loadLitSessions();
+    selectLitSession(data.session.id);
+
+    setTimeout(() => { statusEl.textContent = ''; }, 4000);
+  } catch (e) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = `Error: ${e.message}`;
+  }
+}
+
+// ── Load session list ─────────────────────────────────────────────────────────
+
+async function loadLitSessions() {
+  try {
+    const res = await fetch('/api/lit-review/sessions');
+    const data = await res.json();
+    renderLitSessions(data.sessions || []);
+  } catch (e) {
+    document.getElementById('lr-session-list').innerHTML =
+      '<div class="loading" style="color:var(--red)">Failed to load sessions</div>';
+  }
+}
+
+function renderLitSessions(sessions) {
+  const el = document.getElementById('lr-session-list');
+  if (!sessions.length) {
+    el.innerHTML = '<div class="viz-empty" style="padding:20px;font-size:12px;">No sessions yet.<br>Create one above.</div>';
+    return;
+  }
+  el.innerHTML = sessions.map(s => {
+    const pct = s.max_papers ? Math.min(100, (s.papers_relevant / s.max_papers) * 100) : 0;
+    const progressBar = s.max_papers
+      ? `<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>`
+      : '';
+    const isActive = currentLitSession && currentLitSession.id === s.id;
+    return `
+      <div class="lit-session-card ${isActive ? 'active' : ''}" onclick="selectLitSession(${s.id})">
+        <div class="s-title">${escHtml(s.initial_paper_title || s.initial_query)}</div>
+        <div class="s-meta">
+          <span class="status-badge ${s.status}">${s.is_running ? 'running' : s.status}</span>
+          <span>${s.papers_relevant} relevant</span>
+          <span>${s.papers_processed} processed</span>
+          ${s.max_papers ? `<span>/ ${s.max_papers} max</span>` : ''}
+        </div>
+        ${progressBar}
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Select session ────────────────────────────────────────────────────────────
+
+async function selectLitSession(sessionId) {
+  if (litPollTimer) { clearInterval(litPollTimer); litPollTimer = null; }
+
+  try {
+    const res = await fetch(`/api/lit-review/sessions/${sessionId}`);
+    currentLitSession = await res.json();
+  } catch (e) { return; }
+
+  document.getElementById('lr-empty').style.display = 'none';
+  const inner = document.getElementById('lr-detail-inner');
+  inner.style.display = 'flex';
+  inner.style.flexDirection = 'column';
+  inner.style.height = '100%';
+
+  renderLitDetail(currentLitSession);
+  loadLitPapers(sessionId);
+
+  // Poll while running
+  if (currentLitSession.is_running || currentLitSession.status === 'running' || currentLitSession.status === 'generating') {
+    litPollTimer = setInterval(() => pollLitSession(sessionId), 3000);
+  }
+
+  // Refresh the sidebar card to highlight active
+  loadLitSessions();
+}
+
+async function pollLitSession(sessionId) {
+  try {
+    const res = await fetch(`/api/lit-review/sessions/${sessionId}`);
+    const s = await res.json();
+    currentLitSession = s;
+    renderLitDetail(s);
+
+    if (!s.is_running && s.status !== 'running' && s.status !== 'generating') {
+      clearInterval(litPollTimer);
+      litPollTimer = null;
+      loadLitPapers(sessionId);
+      loadLitSessions();
+    } else {
+      // Refresh paper list less frequently
+      loadLitPapers(sessionId);
+    }
+  } catch (e) {}
+}
+
+function renderLitDetail(s) {
+  // Title
+  document.getElementById('lr-detail-title').textContent =
+    truncate(s.initial_paper_title || s.initial_query, 55);
+
+  // Stats bar
+  document.getElementById('lr-stats-bar').innerHTML = `
+    <div class="stat-item"><div class="stat-num">${s.papers_relevant}</div><div class="stat-lbl">Relevant</div></div>
+    <div class="stat-item"><div class="stat-num">${s.papers_processed}</div><div class="stat-lbl">Processed</div></div>
+    <div class="stat-item"><div class="stat-num">${s.papers_queued}</div><div class="stat-lbl">Queued</div></div>
+    ${s.max_papers ? `<div class="stat-item"><div class="stat-num">${s.max_papers}</div><div class="stat-lbl">Limit</div></div>` : ''}
+    <div class="stat-item" style="flex:1;display:flex;align-items:center;gap:8px;">
+      <span class="status-badge ${s.status}">${s.is_running ? 'running' : s.status}</span>
+      ${s.error_message ? `<span style="color:var(--red);font-size:11px;">${escHtml(s.error_message)}</span>` : ''}
+    </div>
+  `;
+
+  // Action buttons
+  const btns = document.getElementById('lr-action-btns');
+  let html = '';
+  if (s.is_running || s.status === 'running') {
+    html += `<button class="btn" onclick="stopLitSession(${s.id})">Stop</button>`;
+  } else if (s.status === 'created' || s.status === 'stopped' || s.status === 'error') {
+    html += `<button class="btn btn-primary" onclick="startLitSession(${s.id})">Resume</button>`;
+  }
+  if ((s.status === 'completed' || s.status === 'stopped') && !s.has_review) {
+    html += `<button class="btn btn-primary" onclick="generateReview(${s.id})">Generate Review</button>`;
+  }
+  if (s.has_review) {
+    html += `<button class="btn btn-primary" onclick="showReview(${s.id})">View Review</button>`;
+  }
+  btns.innerHTML = html;
+}
+
+// ── Lit sub-tabs ──────────────────────────────────────────────────────────────
+
+function switchLitTab(tab) {
+  document.getElementById('ltab-papers').classList.toggle('active', tab === 'papers');
+  document.getElementById('ltab-review').classList.toggle('active', tab === 'review');
+  document.getElementById('lr-papers-pane').style.display = tab === 'papers' ? 'block' : 'none';
+  document.getElementById('lr-review-pane').style.display = tab === 'review' ? 'block' : 'none';
+  document.getElementById('lr-copy-bar').style.display = (tab === 'review' && currentLitReviewText) ? 'flex' : 'none';
+}
+
+// ── Papers table ──────────────────────────────────────────────────────────────
+
+async function loadLitPapers(sessionId) {
+  try {
+    const res = await fetch(`/api/lit-review/sessions/${sessionId}/papers?limit=300`);
+    const data = await res.json();
+    renderLitPapers(data.papers || []);
+  } catch (e) {}
+}
+
+function renderLitPapers(papers) {
+  const el = document.getElementById('lr-papers-content');
+  if (!papers.length) {
+    el.innerHTML = '<div class="viz-empty" style="padding:30px;">No papers yet. Start the session to begin triage.</div>';
+    return;
+  }
+
+  const statusIcon = { processed: '✓', queued: '…', processing: '⟳', irrelevant: '✗', failed: '!', skipped: '—' };
+  const statusColor = {
+    processed: 'var(--green)', queued: 'var(--text-dim)', processing: 'var(--accent)',
+    irrelevant: 'var(--border)', failed: 'var(--red)', skipped: 'var(--border)'
+  };
+
+  el.innerHTML = `
+    <table class="papers-table">
+      <thead>
+        <tr>
+          <th style="width:28px;"></th>
+          <th>Paper</th>
+          <th style="width:55px;">Year</th>
+          <th style="width:60px;">Score</th>
+          <th style="width:50px;">Depth</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${papers.map(p => {
+          const icon = statusIcon[p.status] || '?';
+          const color = statusColor[p.status] || 'var(--text-dim)';
+          const score = p.relevance_score !== null ? `${(p.relevance_score * 100).toFixed(0)}%` : '—';
+          const authors = (p.authors || []).slice(0, 2).join(', ');
+          const link = p.url ? `<a href="${p.url}" target="_blank" rel="noopener" style="color:var(--accent);font-size:11px;text-decoration:none;">↗</a>` : '';
+          return `
+            <tr>
+              <td style="color:${color};font-size:14px;text-align:center;">${icon}</td>
+              <td>
+                <div class="p-title">${escHtml(p.title)} ${link}</div>
+                <div class="p-authors">${escHtml(authors)}${(p.authors||[]).length > 2 ? ' et al.' : ''} · ${p.venue || ''}</div>
+                ${p.relevance_reason ? `<div class="p-reason">${escHtml(p.relevance_reason)}</div>` : ''}
+              </td>
+              <td style="color:var(--text-dim);">${p.year || '—'}</td>
+              <td style="color:${p.relevance_score >= 0.7 ? 'var(--green)' : 'var(--text-dim)'};">${score}</td>
+              <td style="color:var(--text-dim);">${p.depth}</td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// ── Session actions ───────────────────────────────────────────────────────────
+
+async function startLitSession(sessionId) {
+  await fetch(`/api/lit-review/sessions/${sessionId}/start`, { method: 'POST' });
+  selectLitSession(sessionId);
+}
+
+async function stopLitSession(sessionId) {
+  await fetch(`/api/lit-review/sessions/${sessionId}/stop`, { method: 'POST' });
+  if (litPollTimer) { clearInterval(litPollTimer); litPollTimer = null; }
+  selectLitSession(sessionId);
+}
+
+async function generateReview(sessionId) {
+  const targetWords = parseInt(prompt('Target word count for the review:', '4000') || '4000');
+  if (isNaN(targetWords)) return;
+
+  try {
+    const res = await fetch(`/api/lit-review/sessions/${sessionId}/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ target_words: targetWords }),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.detail || 'Failed to start generation');
+      return;
+    }
+    // Switch to review tab and start polling
+    switchLitTab('review');
+    document.getElementById('lr-review-text').innerHTML =
+      '<div class="loading"><div class="spinner"></div>Generating review... this may take several minutes.</div>';
+    litPollTimer = setInterval(() => pollLitSession(sessionId), 5000);
+  } catch (e) {
+    alert(`Error: ${e.message}`);
+  }
+}
+
+async function showReview(sessionId) {
+  try {
+    const res = await fetch(`/api/lit-review/sessions/${sessionId}/review`);
+    const data = await res.json();
+    currentLitReviewText = data.review || '';
+    document.getElementById('lr-review-text').innerHTML = markdownToHtml(currentLitReviewText);
+    switchLitTab('review');
+    document.getElementById('lr-copy-bar').style.display = 'flex';
+  } catch (e) {
+    alert(`Could not load review: ${e.message}`);
+  }
+}
+
+// ── Minimal Markdown renderer ─────────────────────────────────────────────────
+
+function markdownToHtml(md) {
+  let html = escHtml(md);
+  // Headers
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  // Bold / italic
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  // Horizontal rule
+  html = html.replace(/^---$/gm, '<hr>');
+  // Paragraphs (blank line separated)
+  html = html.replace(/\n\n+/g, '</p><p>');
+  return '<p>' + html + '</p>';
+}
+
+// ── Review copy / download ────────────────────────────────────────────────────
+
+function copyReview() {
+  if (!currentLitReviewText) return;
+  navigator.clipboard.writeText(currentLitReviewText).then(() => {
+    const msg = document.getElementById('lr-copy-msg');
+    msg.textContent = 'Copied!';
+    setTimeout(() => { msg.textContent = ''; }, 2000);
+  });
+}
+
+function downloadReview() {
+  if (!currentLitReviewText) return;
+  const title = currentLitSession
+    ? (currentLitSession.initial_paper_title || currentLitSession.initial_query).replace(/[^a-z0-9]/gi, '_').toLowerCase()
+    : 'literature_review';
+  const blob = new Blob([currentLitReviewText], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${title}_review.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 // ── Init ────────────────────────────────────────────────────────────────────
 

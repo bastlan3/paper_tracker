@@ -24,6 +24,7 @@ from app.embeddings import embed_texts, compute_seed_embeddings, recompute_umap
 from app.arxiv_scraper import ingest_papers, ingest_papers_deep
 from app.summarizer import enrich_papers
 from app.notifications import send_daily_digest
+from app.lit_review_router import router as lit_review_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -116,6 +117,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="EBM Paper Tracker", lifespan=lifespan)
+
+# Literature review feature
+app.include_router(lit_review_router)
 
 # Serve static files
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")

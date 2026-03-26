@@ -6,6 +6,9 @@ from sqlmodel import Field, SQLModel, Session, create_engine, select
 
 from app.config import settings
 
+# Import lit-review models so SQLModel registers their tables
+import app.lit_review_models  # noqa: F401
+
 
 class Paper(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
