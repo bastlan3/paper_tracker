@@ -1,13 +1,17 @@
 """
 Notification system: Telegram bot + email digest.
 Each paper gets: summary, keywords, arxiv link, PDF link.
+Optionally sends an audio summary via Mistral Voxtral TTS.
 """
 
 import asyncio
+import base64
 import logging
+import tempfile
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from pathlib import Path
 
 import aiosmtplib
 from jinja2 import Template
@@ -49,6 +53,35 @@ by {authors}
 """
 
 
+def _build_tts_script(paper: Paper) -> str:
+    """Build a concise spoken-word script for a single paper."""
+    authors = paper.get_authors_list()
+    first_author = authors[0].split()[-1] if authors else "Unknown"
+    et_al = " and colleagues" if len(authors) > 1 else ""
+    summary = paper.summary or paper.abstract[:300] or "No summary available."
+    return (
+        f"{paper.title}, by {first_author}{et_al}. "
+        f"{summary}"
+    )
+
+
+def generate_paper_audio(script: str, voice_id: str | None = None) -> bytes:
+    """
+    Synthesise speech for a paper script using Mistral Voxtral TTS.
+    Returns raw MP3 bytes, or raises on failure.
+    """
+    from mistralai import Mistral
+
+    client = Mistral(api_key=settings.MISTRAL_API_KEY)
+    response = client.audio.speech.complete(
+        model="voxtral-mini-tts-2603",
+        input=script,
+        voice_id=voice_id or settings.VOXTRAL_VOICE_ID,
+        response_format="mp3",
+    )
+    return base64.b64decode(response.audio_data)
+
+
 async def send_telegram_digest(papers: list[Paper]):
     """Send daily digest via Telegram using a single Bot instance."""
     if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
@@ -69,6 +102,25 @@ async def send_telegram_digest(papers: list[Paper]):
             msg = format_telegram_paper(paper)
             for chunk in [msg[i:i + TELEGRAM_MAX_CHUNK] for i in range(0, len(msg), TELEGRAM_MAX_CHUNK)]:
                 await bot.send_message(chat_id=settings.TELEGRAM_CHAT_ID, text=chunk, disable_web_page_preview=True)
+
+            if settings.TELEGRAM_AUDIO and settings.MISTRAL_API_KEY:
+                try:
+                    script = _build_tts_script(paper)
+                    audio_bytes = await asyncio.get_event_loop().run_in_executor(
+                        None, generate_paper_audio, script, settings.VOXTRAL_VOICE_ID
+                    )
+                    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+                        tmp.write(audio_bytes)
+                        tmp_path = tmp.name
+                    await bot.send_voice(
+                        chat_id=settings.TELEGRAM_CHAT_ID,
+                        voice=Path(tmp_path).open("rb"),
+                    )
+                    Path(tmp_path).unlink(missing_ok=True)
+                    logger.info(f"Audio summary sent for: {paper.title[:50]}")
+                except Exception as e:
+                    logger.warning(f"Voxtral TTS failed for '{paper.title[:50]}': {e}")
+
             await asyncio.sleep(TELEGRAM_RATE_LIMIT)
 
 

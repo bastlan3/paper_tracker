@@ -37,6 +37,12 @@ class Settings:
     # Register at: https://www.semanticscholar.org/product/api
     SEMANTIC_SCHOLAR_API_KEY: str = os.getenv("SEMANTIC_SCHOLAR_API_KEY", "")
 
+    # Voxtral TTS (optional — sends audio summaries via Telegram)
+    # Uses the same MISTRAL_API_KEY. Set TELEGRAM_AUDIO=true to enable.
+    # Voices: neutral_female, neutral_male, casual_female, casual_male, cheerful_female
+    TELEGRAM_AUDIO: bool = os.getenv("TELEGRAM_AUDIO", "false").lower() == "true"
+    VOXTRAL_VOICE_ID: str = os.getenv("VOXTRAL_VOICE_ID", "neutral_female")
+
     # Arxiv search config
     ARXIV_CATEGORIES: list[str] = ["cs.LG", "cs.AI", "stat.ML"]
     ARXIV_KEYWORDS: list[str] = [
