@@ -7,3 +7,4 @@ __pycache__/
 .DS_Store
 .claude/
 quick_test.py
+paper_discover.egg-info/
