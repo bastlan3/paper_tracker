@@ -1,0 +1,57 @@
+# API source configuration for paper-discover retrieval swarm.
+# rate_limit: requests per second (conservative defaults; raise with API key)
+
+openalex:
+  base_url: "https://api.openalex.org"
+  rate_limit: 10          # 10/s with polite-pool email header
+  polite_email: ""        # set via PAPER_DISCOVER_EMAIL env var
+  max_per_query: 200
+  timeout: 30
+
+semantic_scholar:
+  base_url: "https://api.semanticscholar.org/graph/v1"
+  rate_limit: 1           # 1/s without key; 100/s with S2_API_KEY
+  max_per_query: 100
+  timeout: 30
+  fields: "paperId,externalIds,title,authors,year,venue,abstract,referenceCount,citationCount,isOpenAccess,openAccessPdf,references,citations"
+
+crossref:
+  base_url: "https://api.crossref.org"
+  rate_limit: 5
+  max_per_query: 100
+  timeout: 30
+  polite_email: ""        # set via PAPER_DISCOVER_EMAIL env var
+
+arxiv:
+  base_url: "https://export.arxiv.org/api"
+  rate_limit: 3
+  max_per_query: 100
+  timeout: 30
+
+pubmed:
+  base_url: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+  rate_limit: 3           # 10/s with API key; 3/s without
+  max_per_query: 200
+  timeout: 30
+
+europepmc:
+  base_url: "https://www.ebi.ac.uk/europepmc/webservices/rest"
+  rate_limit: 5
+  max_per_query: 100
+  timeout: 30
+
+unpaywall:
+  base_url: "https://api.unpaywall.org/v2"
+  rate_limit: 10
+  timeout: 15
+
+retraction_watch:
+  # Via Crossref event data; supplemented by direct Retraction Watch CSV
+  crossref_base_url: "https://api.crossref.org/works"
+  rate_limit: 3
+  timeout: 15
+
+# Disk cache for HTTP responses (avoids re-fetching on replay)
+cache:
+  enabled: true
+  max_age_hours: 48

@@ -1,0 +1,31 @@
+You are a search-strategy expert generating queries for a systematic literature search.
+
+## Approved plan
+{plan_json}
+
+## Anchor paper titles (for context)
+{anchor_titles}
+
+## Instructions
+
+Generate three families of queries:
+
+### 1. lexical_queries
+Boolean/keyword queries for PubMed, arXiv, Crossref.
+- Cover each essential dimension with appropriate synonyms and MeSH terms where applicable.
+- Keep each query focused; prefer multiple narrow queries over one huge OR-chain.
+- Tag which dimensions each query targets.
+- source: one of "pubmed", "arxiv", "crossref"
+
+### 2. semantic_queries
+Natural-language phrases for embedding-based search (OpenAlex, Semantic Scholar).
+- Rephrase the intent and each dimension as natural text a relevant paper's abstract might contain.
+- Include 3–8 semantic queries of varying specificity.
+
+### 3. concept_translation_queries
+Reframings of the research question in distant fields.
+- Identify 2–4 fields where the same underlying question might appear under different vocabulary.
+- For each, write the query as that field's community would phrase it.
+- Include a rationale explaining the structural analogy.
+
+Output ONLY valid JSON matching the schema. No prose, no markdown fences.

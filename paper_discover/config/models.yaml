@@ -1,0 +1,43 @@
+# Model registry for paper-discover.
+# All LLM calls go through models/vllm_client.py which reads this file.
+# Set PAPER_DISCOVER_VLLM_URL to point at your local vLLM server.
+# Falls back to cloud providers when local is unavailable.
+
+local:
+  base_url: "http://localhost:8000/v1"
+  api_key: "token-local"          # vLLM ignores this; required by openai SDK
+
+  # High-volume judging tier (runs continuously during Stage 3)
+  judge_model: "Qwen3-14B-Instruct"
+  judge_max_tokens: 1024
+  judge_temperature: 0.0          # deterministic judging
+
+  # Low-volume planning/synthesis tier (Stage 0, Stage 8)
+  planner_model: "Qwen3-14B-Instruct"   # swap to Qwen3-30B-A3B-Instruct when VRAM allows
+  planner_max_tokens: 2048
+  planner_temperature: 0.3
+
+  # Skeptic (different family — loaded on demand, sequential swap)
+  # Stage 5 only; not in M1
+  skeptic_model: "Llama-3.3-8B-Instruct"
+
+embedding:
+  # Infinity server (Apache-2) or sentence_transformers fallback
+  server_url: "http://localhost:7997"   # set PAPER_DISCOVER_EMBEDDING_URL
+  model: "BAAI/bge-m3"
+  dim: 1024
+  batch_size: 64
+  use_server: false   # false = use sentence_transformers locally (no server needed)
+
+reranker:
+  model: "BAAI/bge-reranker-v2-m3"
+  batch_size: 32
+  threshold: 0.3      # T2 cut: candidates below this are CUT before LLM judging
+  use_server: false   # false = use sentence_transformers CrossEncoder locally
+
+# Cloud fallback (used when local vLLM is unreachable)
+cloud_fallback:
+  enabled: false
+  provider: "deepseek"   # openai-compatible; set DEEPSEEK_API_KEY
+  base_url: "https://api.deepseek.com/v1"
+  model: "deepseek-chat"

@@ -1,0 +1,178 @@
+"""
+JSON schema definitions for guided decoding (vLLM extra_body['guided_json']).
+Each schema is a plain dict; pass it to LLMClient.judge() or .plan_json().
+"""
+
+from __future__ import annotations
+
+# ── Plan artifact ─────────────────────────────────────────────────────────────
+
+PLAN_SCHEMA: dict = {
+    "type": "object",
+    "required": ["intent", "concepts", "dimensions", "scope", "anchors", "depth"],
+    "additionalProperties": False,
+    "properties": {
+        "intent": {"type": "string"},
+        "concepts": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "dimensions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "required": ["name", "value", "essential", "critical"],
+                "additionalProperties": False,
+                "properties": {
+                    "name":      {"type": "string"},
+                    "value":     {"type": "string"},
+                    "essential": {"type": "boolean"},
+                    "critical":  {"type": "boolean"},
+                },
+            },
+        },
+        "scope": {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "date_from":           {"type": "string"},
+                "date_to":             {"type": "string"},
+                "languages":           {"type": "array", "items": {"type": "string"}},
+                "exclude_study_types": {"type": "array", "items": {"type": "string"}},
+            },
+        },
+        "anchors": {"type": "array", "items": {"type": "string"}},
+        "depth":   {"type": "string", "enum": ["fast", "standard", "deep", "unlimited"]},
+    },
+}
+
+# ── Clarification questions from the planner ──────────────────────────────────
+
+CLARIFICATIONS_SCHEMA: dict = {
+    "type": "object",
+    "required": ["questions"],
+    "additionalProperties": False,
+    "properties": {
+        "questions": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+                "type": "object",
+                "required": ["question", "default"],
+                "additionalProperties": False,
+                "properties": {
+                    "question": {"type": "string"},
+                    "default":  {"type": "string"},
+                },
+            },
+        }
+    },
+}
+
+# ── Query plan from Stage 1 ───────────────────────────────────────────────────
+
+QUERY_PLAN_SCHEMA: dict = {
+    "type": "object",
+    "required": ["lexical_queries", "semantic_queries", "concept_translation_queries"],
+    "additionalProperties": False,
+    "properties": {
+        "lexical_queries": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["source", "query", "dimensions_targeted"],
+                "additionalProperties": False,
+                "properties": {
+                    "source":             {"type": "string"},
+                    "query":              {"type": "string"},
+                    "dimensions_targeted": {"type": "array", "items": {"type": "string"}},
+                },
+            },
+        },
+        "semantic_queries": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["query", "dimensions_targeted"],
+                "additionalProperties": False,
+                "properties": {
+                    "query":              {"type": "string"},
+                    "dimensions_targeted": {"type": "array", "items": {"type": "string"}},
+                },
+            },
+        },
+        "concept_translation_queries": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["field", "query", "rationale"],
+                "additionalProperties": False,
+                "properties": {
+                    "field":    {"type": "string"},
+                    "query":    {"type": "string"},
+                    "rationale": {"type": "string"},
+                },
+            },
+        },
+    },
+}
+
+# ── Main judge rubric ─────────────────────────────────────────────────────────
+
+JUDGE_SCHEMA: dict = {
+    "type": "object",
+    "required": [
+        "gate_A_score",
+        "gate_A_evidence",
+        "gate_A_per_anchor",
+        "gate_B_dimension_scores",
+        "gate_B_overall",
+        "flags",
+        "confidence",
+        "two_sentence_summary",
+        "why_this_level",
+    ],
+    "additionalProperties": False,
+    "properties": {
+        "gate_A_score": {"type": "integer", "minimum": 0, "maximum": 4},
+        "gate_A_evidence": {"type": "string"},
+        "gate_A_per_anchor": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["anchor_id", "score", "reason"],
+                "additionalProperties": False,
+                "properties": {
+                    "anchor_id": {"type": "string"},
+                    "score":     {"type": "integer", "minimum": 0, "maximum": 4},
+                    "reason":    {"type": "string"},
+                },
+            },
+        },
+        "gate_B_dimension_scores": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["dimension", "presence", "evidence"],
+                "additionalProperties": False,
+                "properties": {
+                    "dimension": {"type": "string"},
+                    "presence":  {"type": "string", "enum": ["absent", "partial", "present"]},
+                    "evidence":  {"type": "string"},
+                },
+            },
+        },
+        "gate_B_overall": {"type": "integer", "minimum": 0, "maximum": 4},
+        "flags": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "review", "meta_analysis", "methods", "negative_result",
+                    "replication", "preregistered", "retracted",
+                ],
+            },
+        },
+        "confidence":           {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "two_sentence_summary": {"type": "string"},
+        "why_this_level":       {"type": "string"},
+    },
+}
