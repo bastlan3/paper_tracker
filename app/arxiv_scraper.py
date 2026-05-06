@@ -112,7 +112,7 @@ def filter_by_similarity(
     norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
     normed = embeddings / np.clip(norms, 1e-8, None)
 
-    similarities = (normed @ seed_mean.T).squeeze()  # (n_papers,)
+    similarities = (normed @ seed_mean.T).reshape(-1)  # (n_papers,) — squeeze() breaks on n=1
 
     results = []
     for i, (paper, sim) in enumerate(zip(papers, similarities)):

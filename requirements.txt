@@ -28,3 +28,6 @@ arxiv==2.1.3
 # Utils
 beautifulsoup4==4.12.3
 feedparser==6.0.11
+
+# Literature Review — PDF text extraction
+pdfplumber==0.11.4
