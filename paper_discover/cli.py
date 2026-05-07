@@ -404,5 +404,30 @@ async def _run_digest_pipeline(
     console.print(f"  [green]→[/] {digest_md}")
 
 
+# ── M8: web server ────────────────────────────────────────────────────────────
+
+@app.command()
+def serve(
+    db: str = typer.Option("run.db", "--db", help="SQLite DB to serve"),
+    host: str = typer.Option("127.0.0.1", "--host"),
+    port: int = typer.Option(8500, "--port"),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Run the FastAPI web dashboard against a paper-discover DB."""
+    _setup_logging(verbose)
+    try:
+        import uvicorn  # noqa
+    except ImportError:
+        console.print("[red]Web server requires:[/] pip install -e '.[web]'")
+        raise typer.Exit(1)
+
+    from .web.app import make_app
+
+    application = make_app(db_path=db)
+    console.print(f"[green]Serving:[/] http://{host}:{port}  (DB: {db})")
+    import uvicorn as _uv
+    _uv.run(application, host=host, port=port, log_level="info" if verbose else "warning")
+
+
 if __name__ == "__main__":
     app()
