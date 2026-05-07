@@ -224,22 +224,9 @@ async def _edit_plan(plan: dict) -> dict:
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 async def _resolve_anchors(anchor_ids: list[str]) -> list[dict]:
-    """Fetch metadata for anchor IDs from OpenAlex / Semantic Scholar."""
-    from .stage2_retrieve.openalex import fetch_paper_by_doi
-    from .stage2_retrieve.semantic_scholar import fetch_paper_by_id as s2_fetch
-
-    results: list[dict] = []
-    for aid in anchor_ids:
-        paper: dict | None = None
-        if aid.startswith("10."):
-            paper = await fetch_paper_by_doi(aid)
-        elif aid.startswith("2") and len(aid) > 10:
-            paper = await s2_fetch(aid)
-        if paper:
-            results.append(paper)
-        else:
-            logger.warning("Could not resolve anchor %s", aid)
-    return results
+    """Fetch metadata for anchor IDs (DOI / arXiv / Zotero key / OpenAlex / S2)."""
+    from ..seeds import resolve_anchors
+    return await resolve_anchors(anchor_ids)
 
 
 async def _fetch_zotero_collection(collection_key: str) -> list[dict]:

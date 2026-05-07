@@ -44,13 +44,38 @@ def _setup_logging(verbose: bool) -> None:
 @app.command()
 def plan(
     seed: str = typer.Option(None, "--seed", "-s", help="Research question or topic (prompted if omitted)"),
-    anchors: str = typer.Option(None, "--anchors", "-a", help="Comma-separated DOIs or arXiv IDs"),
-    collection: str = typer.Option(None, "--collection", "-c", help="Zotero collection key"),
+    anchors: str = typer.Option(None, "--anchors", "-a", help="Comma-separated anchors (DOIs, arXiv IDs, Zotero keys, OpenAlex IDs)"),
+    collection: str = typer.Option(None, "--collection", "-c", help="Zotero collection key (theme inferred from contents)"),
+    structured: str = typer.Option(None, "--structured", help="Path to a structured-query JSON file (PICO / boolean / filter)"),
     out: str = typer.Option("plan.json", "--out", "-o", help="Output path for plan.json"),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
-    """Interactive plan mode: dialogue with LLM → approved plan.json."""
+    """Interactive plan mode: dialogue with LLM → approved plan.json.
+
+    Seed modes (mutually compatible — any combination works):
+      --seed         natural-language question
+      --anchors      DOIs / arXiv / Zotero keys / OpenAlex IDs
+      --collection   Zotero collection key
+      --structured   PICO / boolean / filter JSON (skips planner LLM)
+    """
     _setup_logging(verbose)
+
+    if structured:
+        sf = Path(structured)
+        if not sf.exists():
+            console.print(f"[red]Structured query file not found: {structured}[/]")
+            raise typer.Exit(1)
+        from .seeds import plan_from_structured
+        try:
+            structured_query = json.loads(sf.read_text())
+            plan_dict = plan_from_structured(structured_query)
+        except (ValueError, json.JSONDecodeError) as exc:
+            console.print(f"[red]Invalid structured query: {exc}[/]")
+            raise typer.Exit(1)
+        Path(out).write_text(json.dumps(plan_dict, indent=2))
+        console.print(f"[green]✓ Plan saved to {out}[/] (structured mode, no LLM call)")
+        return
+
     from .pipeline.stage0_plan import run_plan_mode
 
     anchor_ids = [a.strip() for a in anchors.split(",")] if anchors else None
