@@ -5,11 +5,12 @@ Each node corresponds to one pipeline stage. The state carries only the
 run_id and plan — all substantive data lives in SQLite. This keeps the
 LangGraph state small and enables checkpointing/replay cheaply.
 
-M1 topology (linear):
-  START → retrieval → judging → report → END
+M2 topology (linear):
+  START → retrieval → judging → saturation → skeptic → coverage → report → END
 
-Saturation (M2), skeptic (M2), and coverage (M2) nodes are stubbed here
-so the graph structure is already in place.
+Each stage reads/writes the candidates DB; the LangGraph state itself only
+carries identifiers and small summary dicts (saturation_summary,
+skeptic_summary, coverage) so checkpoints stay small.
 """
 
 from __future__ import annotations
@@ -38,6 +39,9 @@ from ..pipeline.stage2_retrieve.semantic_scholar import (
 )
 from ..pipeline.stage2_retrieve.writer import RetrievalQueue, canonical_id
 from ..pipeline.stage3_judge.main_judge import run_judging
+from ..pipeline.stage4_saturate import run_saturation
+from ..pipeline.stage5_skeptic import run_skeptic
+from ..pipeline.stage7_coverage import run_coverage
 from ..pipeline.stage8_report.bibliography import write_report
 from ..zotero.client import get_client as get_zotero
 
@@ -52,6 +56,9 @@ class PipelineState(TypedDict):
     plan: dict
     output_dir: str
     judge_stats: dict
+    saturation_summary: dict
+    skeptic_summary: dict
+    coverage: dict
     error: str | None
 
 
@@ -198,6 +205,41 @@ async def node_judging(state: PipelineState) -> PipelineState:
     return state
 
 
+# ── Node: saturation (Stage 4) ────────────────────────────────────────────────
+
+async def node_saturation(state: PipelineState) -> PipelineState:
+    run_id = state["run_id"]
+    summary = await run_saturation(state["db_path"], run_id, state["plan"])
+    state["saturation_summary"] = summary
+    return state
+
+
+# ── Node: skeptic (Stage 5) ───────────────────────────────────────────────────
+
+async def node_skeptic(state: PipelineState) -> PipelineState:
+    run_id = state["run_id"]
+    try:
+        summary = await run_skeptic(state["db_path"], run_id, state["plan"])
+    except Exception as exc:
+        logger.warning("[%s] Skeptic stage failed: %s", run_id, exc)
+        summary = {"flagged": 0, "total_sampled": 0, "overturn_rate": None, "skipped": True}
+    state["skeptic_summary"] = summary
+    return state
+
+
+# ── Node: coverage (Stage 7) ──────────────────────────────────────────────────
+
+async def node_coverage(state: PipelineState) -> PipelineState:
+    run_id = state["run_id"]
+    coverage = await run_coverage(
+        state["db_path"], run_id, state["plan"],
+        saturation_summary=state.get("saturation_summary", {}),
+        skeptic_summary=state.get("skeptic_summary", {"skipped": True}),
+    )
+    state["coverage"] = coverage
+    return state
+
+
 # ── Node: report ──────────────────────────────────────────────────────────────
 
 async def node_report(state: PipelineState) -> PipelineState:
@@ -214,7 +256,7 @@ async def node_report(state: PipelineState) -> PipelineState:
         plan=plan,
         run_id=run_id,
         judge_stats=state.get("judge_stats", {}),
-        coverage=None,  # M2 will fill this
+        coverage=state.get("coverage"),
     )
 
     # Mark run as done
@@ -233,14 +275,20 @@ async def node_report(state: PipelineState) -> PipelineState:
 
 def build_graph() -> Any:
     g = StateGraph(PipelineState)
-    g.add_node("retrieval", node_retrieval)
-    g.add_node("judging",   node_judging)
-    g.add_node("report",    node_report)
+    g.add_node("retrieval",  node_retrieval)
+    g.add_node("judging",    node_judging)
+    g.add_node("saturation", node_saturation)
+    g.add_node("skeptic",    node_skeptic)
+    g.add_node("coverage",   node_coverage)
+    g.add_node("report",     node_report)
 
-    g.add_edge(START,       "retrieval")
-    g.add_edge("retrieval", "judging")
-    g.add_edge("judging",   "report")
-    g.add_edge("report",    END)
+    g.add_edge(START,        "retrieval")
+    g.add_edge("retrieval",  "judging")
+    g.add_edge("judging",    "saturation")
+    g.add_edge("saturation", "skeptic")
+    g.add_edge("skeptic",    "coverage")
+    g.add_edge("coverage",   "report")
+    g.add_edge("report",     END)
 
     return g.compile()
 

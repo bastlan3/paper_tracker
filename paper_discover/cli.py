@@ -152,6 +152,9 @@ async def _run_async(
         "plan": plan,
         "output_dir": output_dir,
         "judge_stats": {},
+        "saturation_summary": {},
+        "skeptic_summary": {"skipped": True},
+        "coverage": {},
         "error": None,
     }
 
@@ -166,6 +169,12 @@ async def _run_async(
     console.print(f"  CORE: {stats.get('CORE', 0)}  SUPPORTING: {stats.get('SUPPORTING', 0)}"
                   f"  CONTEXT: {stats.get('CONTEXT', 0)}  ADJACENT: {stats.get('ADJACENT', 0)}"
                   f"  CUT: {stats.get('CUT', 0)}")
+    cov = final_state.get("coverage") or {}
+    if cov.get("coverage_p") is not None:
+        console.print(
+            f"  Coverage: {cov['coverage_p']:.0%}"
+            f" (CI {cov.get('coverage_ci_lo', 0):.0%}–{cov.get('coverage_ci_hi', 0):.0%})"
+        )
     console.print(f"  Report: [cyan]{output_dir}[/]")
 
 

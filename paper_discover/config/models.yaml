@@ -17,8 +17,15 @@ local:
   planner_max_tokens: 2048
   planner_temperature: 0.3
 
-  # Skeptic (different family — loaded on demand, sequential swap)
-  # Stage 5 only; not in M1
+# Skeptic — Stage 5. Different model family than the main judge so its
+# failure modes are largely independent (FLAG F7). Two deployment options:
+#   (a) second vLLM instance on a different port (recommended)
+#   (b) sequential model swap on the same vLLM server
+# If unreachable at run time, Stage 5 is skipped gracefully and Stage 7
+# notes the missing signal. Override via PAPER_DISCOVER_SKEPTIC_URL.
+skeptic:
+  base_url: "http://localhost:8001/v1"
+  api_key: "token-skeptic"
   skeptic_model: "Llama-3.3-8B-Instruct"
 
 embedding:

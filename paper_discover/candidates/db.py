@@ -17,6 +17,7 @@ from typing import Any, Generator
 logger = logging.getLogger(__name__)
 
 _SCHEMA_PATH = Path(__file__).parent / "schema.sql"
+_MIGRATIONS_DIR = Path(__file__).parent / "migrations"
 
 
 # ── Connection helpers ────────────────────────────────────────────────────────
@@ -37,8 +38,20 @@ def open_db(path: str) -> sqlite3.Connection:
     _apply_pragmas(conn)
     schema = _SCHEMA_PATH.read_text()
     conn.executescript(schema)
+    _apply_migrations(conn)
     conn.commit()
     return conn
+
+
+def _apply_migrations(conn: sqlite3.Connection) -> None:
+    """Apply all .sql files in migrations/ in lexicographic order. Idempotent."""
+    if not _MIGRATIONS_DIR.is_dir():
+        return
+    for path in sorted(_MIGRATIONS_DIR.glob("*.sql")):
+        try:
+            conn.executescript(path.read_text())
+        except sqlite3.OperationalError as exc:
+            logger.warning("Migration %s skipped: %s", path.name, exc)
 
 
 @contextmanager
