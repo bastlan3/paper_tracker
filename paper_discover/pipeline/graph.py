@@ -266,6 +266,16 @@ async def node_report(state: PipelineState) -> PipelineState:
     logger.info("[%s] Stage 8: report", run_id)
 
     rows = fetch_bibliography(db_path, run_id)
+
+    # M7: gap-list synthesis (LLM call). Failures are non-fatal — we still
+    # write the bibliography.
+    try:
+        from ..pipeline.stage8_report.gap_list import generate_gap_list
+        gaps = await generate_gap_list(db_path, run_id, plan)
+    except Exception as exc:
+        logger.warning("[%s] Gap-list generation failed: %s", run_id, exc)
+        gaps = {"gaps": []}
+
     write_report(
         output_dir=output_dir,
         rows=rows,
@@ -274,6 +284,8 @@ async def node_report(state: PipelineState) -> PipelineState:
         judge_stats=state.get("judge_stats", {}),
         coverage=state.get("coverage"),
         hygiene=state.get("hygiene_summary"),
+        db_path=db_path,
+        gaps=gaps,
     )
 
     # Mark run as done

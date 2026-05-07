@@ -264,6 +264,8 @@ def write_report(
     judge_stats: dict,
     coverage: dict | None = None,
     hygiene: dict | None = None,
+    db_path: str | None = None,
+    gaps: dict | None = None,
 ) -> None:
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -280,5 +282,15 @@ def write_report(
 
     summary_md = generate_summary_md(judge_stats, plan, run_id, coverage, hygiene)
     (out / "summary.md").write_text(summary_md)
+
+    # M7: concept map + PRISMA + gap list (concept_map and PRISMA need DB access)
+    if db_path:
+        from .concept_map import write_concept_map
+        from .prisma import write_prisma
+        write_concept_map(output_dir, db_path, run_id)
+        write_prisma(output_dir, db_path, run_id)
+    if gaps is not None:
+        from .gap_list import write_gap_list
+        write_gap_list(output_dir, gaps)
 
     logger.info("Report written to %s", output_dir)

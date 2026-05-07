@@ -187,6 +187,33 @@ JUDGE_SCHEMA: dict = {
 # addresses (FLAG F14). Level mapping is in level_rule.compute_level()
 # with kwargs cross_domain=True, gate_b=analogy_strength.
 
+GAP_LIST_SCHEMA: dict = {
+    "type": "object",
+    "required": ["gaps"],
+    "additionalProperties": False,
+    "properties": {
+        "gaps": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+                "type": "object",
+                "required": ["question", "category", "motivated_by", "rationale"],
+                "additionalProperties": False,
+                "properties": {
+                    "question":     {"type": "string"},
+                    "category":     {
+                        "type": "string",
+                        "enum": ["methodological", "population", "outcome",
+                                 "mechanism", "replication"],
+                    },
+                    "motivated_by": {"type": "array", "items": {"type": "string"}},
+                    "rationale":    {"type": "string"},
+                },
+            },
+        },
+    },
+}
+
 CROSS_DOMAIN_SCHEMA: dict = {
     "type": "object",
     "required": [
