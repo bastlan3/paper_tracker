@@ -429,5 +429,26 @@ def serve(
     _uv.run(application, host=host, port=port, log_level="info" if verbose else "warning")
 
 
+# ── M9: MCP server ────────────────────────────────────────────────────────────
+
+@app.command()
+def mcp(
+    db: str = typer.Option("run.db", "--db", help="Default DB the MCP tools read from"),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Start an MCP stdio server exposing paper-discover's read-side tools."""
+    _setup_logging(verbose)
+    try:
+        from .mcp_server import serve
+    except ImportError as exc:
+        console.print(f"[red]MCP server unavailable:[/] {exc}")
+        raise typer.Exit(1)
+    try:
+        serve(default_db=db)
+    except ImportError as exc:
+        console.print(f"[red]{exc}[/]")
+        raise typer.Exit(1)
+
+
 if __name__ == "__main__":
     app()
