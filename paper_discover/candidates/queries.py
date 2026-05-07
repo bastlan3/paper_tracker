@@ -118,3 +118,25 @@ def zotero_paper_ids(db_path: str, run_id: str) -> set[str]:
             (run_id,),
         ).fetchall()
     return {r[0] for r in rows}
+
+
+def get_concept_translation_query(db_path: str, run_id: str, paper_id: str) -> dict | None:
+    """
+    Return the most recent concept-translation query that retrieved this paper.
+    Used by the cross-domain judge to fetch the source field and reframing rationale.
+    """
+    with read_conn(db_path) as conn:
+        row = conn.execute(
+            """
+            SELECT q.query_text, q.dimensions_json, q.family, q.source
+            FROM candidate_sources cs
+            JOIN queries q USING (query_id)
+            WHERE cs.run_id = ? AND cs.paper_id = ?
+              AND q.run_id = ?
+              AND q.family = 'concept_translation'
+            ORDER BY q.issued_at DESC
+            LIMIT 1
+            """,
+            (run_id, paper_id, run_id),
+        ).fetchone()
+    return dict(row) if row else None

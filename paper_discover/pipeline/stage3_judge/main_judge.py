@@ -23,11 +23,16 @@ from pathlib import Path
 import numpy as np
 
 from ...candidates.db import fetch_pending_candidates, read_conn
+from ...candidates.queries import get_concept_translation_query
 from ...candidates.signals import compute_signals, signals_to_prompt_block
 from ...models.embedding import embed_batch
 from ...models.reranker import rerank, threshold as rerank_threshold
 from ...models.structured_output import JUDGE_SCHEMA
 from ...models.vllm_client import get_client
+from .cross_domain import (
+    cross_domain_judge,
+    is_cross_domain_candidate,
+)
 from .level_rule import compute_level, gate_b_from_dimensions
 from .triage import triage
 
@@ -116,8 +121,28 @@ async def run_judging(
                 total_judged += 1
                 continue
 
-            # T4: full LLM judge
+            # T4: full LLM judge — route cross-domain candidates separately
             try:
+                seen_by = json.loads(candidate.get("seen_by_json") or "[]")
+                if is_cross_domain_candidate(seen_by):
+                    cd_query = get_concept_translation_query(db_path, run_id, paper_id)
+                    level, judge_out, confidence = await cross_domain_judge(
+                        candidate=candidate,
+                        intent=intent,
+                        dimensions=dimensions,
+                        cross_domain_field=(cd_query or {}).get("source", ""),
+                        cross_domain_query=(cd_query or {}).get("query_text", ""),
+                        cross_domain_rationale="(retrieved by concept-translation reframing)",
+                    )
+                    await _write_decision(
+                        conn_write, run_id, paper_id, level, "T4",
+                        judge_score=judge_out, confidence=confidence,
+                        judged_by="cross_domain_judge",
+                    )
+                    stats[level] += 1
+                    total_judged += 1
+                    continue
+
                 cand_vec: np.ndarray | None = None
                 if intent_vec is not None:
                     text = f"{candidate.get('title','')} {candidate.get('abstract','')[:300]}"

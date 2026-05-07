@@ -176,3 +176,49 @@ JUDGE_SCHEMA: dict = {
         "why_this_level":       {"type": "string"},
     },
 }
+
+# ── Cross-domain analogy judge rubric (M3) ───────────────────────────────────
+#
+# The cross-domain judge looks at candidates retrieved by the concept-
+# translation pass — papers from a distant field that may be a structural
+# analogue of the user's question. Its default verdict is "superficial
+# keyword overlap" → CUT. To pass ADJACENT it must name the concept
+# correspondence AND identify which essential dimensions the analogue
+# addresses (FLAG F14). Level mapping is in level_rule.compute_level()
+# with kwargs cross_domain=True, gate_b=analogy_strength.
+
+CROSS_DOMAIN_SCHEMA: dict = {
+    "type": "object",
+    "required": [
+        "superficial_overlap_only",
+        "concept_correspondence",
+        "source_concept",
+        "target_concept",
+        "dimensions_addressed",
+        "analogy_strength",
+        "evidence",
+        "confidence",
+        "two_sentence_summary",
+        "why_this_level",
+    ],
+    "additionalProperties": False,
+    "properties": {
+        # If true, the paper just shares vocabulary with the question — CUT.
+        "superficial_overlap_only": {"type": "boolean"},
+        # One sentence naming the structural analogy. Empty string if superficial.
+        "concept_correspondence": {"type": "string"},
+        # E.g. "predator-prey dynamics in ecology"
+        "source_concept": {"type": "string"},
+        # E.g. "tumor-immune cell dynamics in oncology"
+        "target_concept": {"type": "string"},
+        # Which essential dimensions of the user's question the analogue addresses.
+        "dimensions_addressed": {"type": "array", "items": {"type": "string"}},
+        # 0=no analogy, 4=tight isomorphism. 2+ required for ADJACENT.
+        "analogy_strength": {"type": "integer", "minimum": 0, "maximum": 4},
+        # Required quote from the abstract supporting the analogy claim.
+        "evidence": {"type": "string"},
+        "confidence":           {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "two_sentence_summary": {"type": "string"},
+        "why_this_level":       {"type": "string"},
+    },
+}

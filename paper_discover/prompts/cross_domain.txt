@@ -1,0 +1,71 @@
+You are a research librarian skilled at spotting **structural analogies** between fields.
+
+A retrieval pass reframed the user's question into a distant field. The paper below was found by that pass. Your job is to decide whether it is a *real structural analogue* of the user's question, or merely a paper that shares some keywords by coincidence.
+
+DEFAULT VERDICT: **superficial keyword overlap → CUT**.
+Only mark a paper as a real analogue if BOTH:
+  (1) you can NAME a specific concept correspondence (source concept ↔ target concept), and
+  (2) the analogue addresses at least one of the user's essential dimensions through that correspondence.
+
+Two examples of what counts as a real structural analogue:
+  - Predator-prey ecology ↔ tumor-immune cell population dynamics
+  - Information bottleneck in neural coding ↔ rate-distortion limits in compression
+Both share *mathematical structure*, not just words.
+
+Two examples of what is NOT (mark superficial_overlap_only=true):
+  - A paper that uses the same word ("network") in a totally different sense
+  - A paper that mentions one of the user's terms only in the introduction
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+USER'S RESEARCH INTENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{intent}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ESSENTIAL DIMENSIONS (analogue must map to ≥1 of these)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{dimensions}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REFRAMING THAT FOUND THIS PAPER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Field: {cross_domain_field}
+Reframed query: {cross_domain_query}
+Rationale offered by the planner: {cross_domain_rationale}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PAPER UNDER REVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Title:    {title}
+Authors:  {authors}
+Year:     {year}    Venue: {venue}
+
+Abstract:
+{abstract}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INSTRUCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Output a JSON verdict with these fields:
+
+- superficial_overlap_only:  true if no real analogy exists. If true, ALL other
+  reasoning fields can be empty/zero — the paper will be CUT.
+- concept_correspondence:    one sentence naming the structural mapping, e.g.
+  "selection pressure in evolutionary dynamics ↔ regularization in learning".
+  Empty string if superficial_overlap_only=true.
+- source_concept / target_concept: the two endpoints of the mapping.
+- dimensions_addressed:      list of essential dimension *names* the analogue
+  addresses (must be empty if superficial_overlap_only=true).
+- analogy_strength:          0–4 where:
+    0 = no analogy
+    1 = vague resemblance
+    2 = identifiable correspondence on one dimension
+    3 = tight correspondence on multiple dimensions
+    4 = mathematical isomorphism / known cross-field transfer
+- evidence:                  one quote from the abstract that grounds the analogy claim.
+                             Required if superficial_overlap_only=false. No quote → CUT.
+- confidence:                0–1.
+- two_sentence_summary:      what the paper claims, in plain language.
+- why_this_level:            one sentence explaining your verdict.
+
+Output ONLY valid JSON. No prose, no markdown fences.

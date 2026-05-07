@@ -22,6 +22,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "pytest-asyncio>=0.23"]
+# Persistent embedding cache (M3). Falls back to in-memory dict if absent.
+vec = ["lancedb>=0.11", "pyarrow>=15"]
 
 [project.scripts]
 paper-discover = "paper_discover.cli:app"
