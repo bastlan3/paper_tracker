@@ -197,7 +197,19 @@ def generate_csl_json(rows: list[dict]) -> list[dict]:
     return items
 
 
-def generate_summary_md(stats: dict, plan: dict, run_id: str, coverage: dict | None) -> str:
+_RETRACTION_ATTRIBUTION = (
+    "_Retraction status sourced via Crossref's relation feed, which incorporates "
+    "Retraction Watch data (CC-BY 4.0; © The Center for Scientific Integrity)._"
+)
+
+
+def generate_summary_md(
+    stats: dict,
+    plan: dict,
+    run_id: str,
+    coverage: dict | None,
+    hygiene: dict | None = None,
+) -> str:
     """Short statistics summary."""
     total_kept = sum(stats.get(lv, 0) for lv in ["CORE", "SUPPORTING", "CONTEXT", "ADJACENT"])
     total_cut = stats.get("CUT", 0)
@@ -228,6 +240,19 @@ def generate_summary_md(stats: dict, plan: dict, run_id: str, coverage: dict | N
                 f"≈ **{p:.0%}** (CI {lo:.0%}–{hi:.0%})" if lo and hi else f"≈ **{p:.0%}**",
                 f"",
             ]
+    if hygiene:
+        lines += [
+            f"## Hygiene",
+            f"| Check | Count |",
+            f"|---|---|",
+            f"| Papers checked | {hygiene.get('checked', 0)} |",
+            f"| Retractions flagged | {hygiene.get('retracted', 0)} |",
+            f"| Errata attached | {hygiene.get('errata', 0)} |",
+            f"| OA URLs resolved | {hygiene.get('oa_resolved', 0)} |",
+            f"",
+            _RETRACTION_ATTRIBUTION,
+            f"",
+        ]
     return "\n".join(lines)
 
 
@@ -238,6 +263,7 @@ def write_report(
     run_id: str,
     judge_stats: dict,
     coverage: dict | None = None,
+    hygiene: dict | None = None,
 ) -> None:
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -252,7 +278,7 @@ def write_report(
     csl = generate_csl_json(rows)
     (out / "bibliography.csl.json").write_text(json.dumps(csl, indent=2, ensure_ascii=False))
 
-    summary_md = generate_summary_md(judge_stats, plan, run_id, coverage)
+    summary_md = generate_summary_md(judge_stats, plan, run_id, coverage, hygiene)
     (out / "summary.md").write_text(summary_md)
 
     logger.info("Report written to %s", output_dir)

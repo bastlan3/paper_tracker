@@ -6,11 +6,11 @@ run_id and plan — all substantive data lives in SQLite. This keeps the
 LangGraph state small and enables checkpointing/replay cheaply.
 
 M2 topology (linear):
-  START → retrieval → judging → saturation → skeptic → coverage → report → END
+  START → retrieval → judging → saturation → skeptic → coverage → hygiene → report → END
 
 Each stage reads/writes the candidates DB; the LangGraph state itself only
 carries identifiers and small summary dicts (saturation_summary,
-skeptic_summary, coverage) so checkpoints stay small.
+skeptic_summary, coverage, hygiene_summary) so checkpoints stay small.
 """
 
 from __future__ import annotations
@@ -41,6 +41,7 @@ from ..pipeline.stage2_retrieve.writer import RetrievalQueue, canonical_id
 from ..pipeline.stage3_judge.main_judge import run_judging
 from ..pipeline.stage4_saturate import run_saturation
 from ..pipeline.stage5_skeptic import run_skeptic
+from ..pipeline.stage6_hygiene import run_hygiene
 from ..pipeline.stage7_coverage import run_coverage
 from ..pipeline.stage8_report.bibliography import write_report
 from ..zotero.client import get_client as get_zotero
@@ -59,6 +60,7 @@ class PipelineState(TypedDict):
     saturation_summary: dict
     skeptic_summary: dict
     coverage: dict
+    hygiene_summary: dict
     error: str | None
 
 
@@ -240,6 +242,20 @@ async def node_coverage(state: PipelineState) -> PipelineState:
     return state
 
 
+# ── Node: hygiene (Stage 6) ───────────────────────────────────────────────────
+
+async def node_hygiene(state: PipelineState) -> PipelineState:
+    run_id = state["run_id"]
+    try:
+        summary = await run_hygiene(state["db_path"], run_id, state["plan"])
+    except Exception as exc:
+        logger.warning("[%s] Hygiene stage failed: %s", run_id, exc)
+        summary = {"checked": 0, "retracted": 0, "errata": 0, "oa_resolved": 0,
+                   "errors": 1, "skipped": True}
+    state["hygiene_summary"] = summary
+    return state
+
+
 # ── Node: report ──────────────────────────────────────────────────────────────
 
 async def node_report(state: PipelineState) -> PipelineState:
@@ -257,6 +273,7 @@ async def node_report(state: PipelineState) -> PipelineState:
         run_id=run_id,
         judge_stats=state.get("judge_stats", {}),
         coverage=state.get("coverage"),
+        hygiene=state.get("hygiene_summary"),
     )
 
     # Mark run as done
@@ -280,6 +297,7 @@ def build_graph() -> Any:
     g.add_node("saturation", node_saturation)
     g.add_node("skeptic",    node_skeptic)
     g.add_node("coverage",   node_coverage)
+    g.add_node("hygiene",    node_hygiene)
     g.add_node("report",     node_report)
 
     g.add_edge(START,        "retrieval")
@@ -287,7 +305,8 @@ def build_graph() -> Any:
     g.add_edge("judging",    "saturation")
     g.add_edge("saturation", "skeptic")
     g.add_edge("skeptic",    "coverage")
-    g.add_edge("coverage",   "report")
+    g.add_edge("coverage",   "hygiene")
+    g.add_edge("hygiene",    "report")
     g.add_edge("report",     END)
 
     return g.compile()
