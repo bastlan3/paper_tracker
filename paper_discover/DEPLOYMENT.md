@@ -35,10 +35,11 @@ python -m venv .venv
 source .venv/bin/activate
 
 pip install -e .
-# Optional persistent embedding cache (M3):
-pip install -e '.[vec]'
-# Dev tools:
-pip install -e '.[dev]'
+# Optional extras (combine as needed):
+pip install -e '.[vec]'   # M3 — persistent LanceDB embedding cache
+pip install -e '.[web]'   # M8 — FastAPI dashboard + JSON API
+pip install -e '.[mcp]'   # M9 — MCP stdio server
+pip install -e '.[dev]'   # pytest tooling
 ```
 
 Verify:
@@ -191,30 +192,150 @@ paper-discover list
 
 ---
 
-## 6. Daily-digest mode (planned, M5)
+## 6. Daily-digest mode
 
-Reuses a saved plan and only retrieves papers published since the last run. Not yet wired — track in milestone M5.
-
----
-
-## 7. Tests
+Reuses a saved plan and only retrieves papers published since the last run.
 
 ```bash
-pytest paper_discover/tests/ -v
+# 1. Save an approved plan as a recurring search
+paper-discover save runs/glp1_ckd/plan.json --name "GLP-1 / CKD daily" --cadence daily --db digest.db
+
+# 2. List saved searches
+paper-discover searches --db digest.db
+
+# 3. Run all enabled searches (or one by ID)
+paper-discover digest --db digest.db
+paper-discover digest 01HXX...  --db digest.db
 ```
 
-The suite covers:
+Each digest run skips Stages 4/5/6/7 (saturation, skeptic, hygiene, coverage) — it's just retrieval + judging restricted to publications since `last_run_at`. Outputs land under `digest_runs/<search_id>/<run_id>.md`.
 
-- DB schema, WAL, FTS5, views, migrations (test_db.py, test_m2.py)
-- Deterministic level-rule mapping including the critical-dimension cap (test_level_rule.py)
-- Saturation, skeptic sampling, coverage Wilson CI (test_m2.py)
-- Cross-domain analogy routing and decision rules, embedding cache fallback (test_m3.py)
+To wire it to a scheduler:
 
-No LLM, network, or GPU is required for the test suite.
+```bash
+# crontab -e
+0 7 * * * /path/to/.venv/bin/paper-discover digest --db /path/to/digest.db
+```
+
+Delete a saved search:
+
+```bash
+paper-discover forget 01HXX... --db digest.db
+```
 
 ---
 
-## 8. Operational notes
+## 7. Web dashboard (optional, [web] extra)
+
+```bash
+pip install -e '.[web]'
+paper-discover serve --db runs/glp1_ckd/run.db --host 127.0.0.1 --port 8500
+```
+
+Open `http://127.0.0.1:8500/` for the run-history dashboard. JSON API:
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/runs` | run list |
+| `GET /api/runs/{id}` | run + coverage_signals |
+| `GET /api/runs/{id}/papers?level=CORE` | bibliography |
+| `GET /api/runs/{id}/concept_map` | citation graph |
+| `GET /api/runs/{id}/prisma` | funnel counts |
+| `GET /api/saved_searches` | digest searches |
+| `POST /api/saved_searches` | create search |
+| `DELETE /api/saved_searches/{id}` | delete |
+| `GET /healthz` | liveness |
+
+The dashboard runs against a single DB; for multi-tenant use, run one process per DB or front them with nginx.
+
+---
+
+## 8. MCP server (optional, [mcp] extra)
+
+Lets other agents pull bibliographies, coverage estimates, and concept maps directly.
+
+```bash
+pip install -e '.[mcp]'
+paper-discover mcp --db runs/glp1_ckd/run.db
+```
+
+Speaks MCP over stdio. Exposed tools (read-side only — pipeline runs stay on the CLI/scheduler):
+
+`list_runs`, `get_run`, `get_bibliography`, `get_concept_map`, `get_prisma`, `list_saved_searches`, `save_plan`, `plan_from_pico`.
+
+Wire it into Claude Desktop or any MCP client by pointing at the `paper-discover mcp` command in their config.
+
+---
+
+## 9. Seed modes (CLI plan)
+
+`paper-discover plan` accepts any combination of:
+
+| Flag | Meaning |
+|---|---|
+| `--seed "..."` | natural-language question |
+| `--anchors a,b,c` | DOIs / arXiv IDs / Zotero keys / OpenAlex W-ids / S2 hex IDs |
+| `--collection KEY` | Zotero collection key (theme inferred) |
+| `--structured PATH` | PICO / boolean / filter JSON (skips planner LLM) |
+
+Structured query examples (save as `query.json`, then `paper-discover plan --structured query.json`):
+
+```json
+{
+  "format": "pico",
+  "population": "adults with CKD",
+  "intervention": "GLP-1 receptor agonists",
+  "comparison": "placebo",
+  "outcome": "cardiovascular mortality",
+  "depth": "deep"
+}
+```
+
+```json
+{
+  "format": "boolean",
+  "intent": "long-COVID neurological symptoms",
+  "boolean": "\"long covid\" AND (neurological OR cognitive) NOT pediatric"
+}
+```
+
+```json
+{
+  "format": "filter",
+  "concepts": ["diabetes", "metformin"],
+  "scope": {"date_from": "2020-01-01", "languages": ["en"]}
+}
+```
+
+---
+
+## 10. Tests
+
+```bash
+pytest paper_discover/tests/ -q
+# 173 passed
+```
+
+Coverage by milestone:
+
+| File | What it tests |
+|---|---|
+| `test_db.py` | schema, WAL, FTS5, views, upserts, citation neighborhood |
+| `test_level_rule.py` | deterministic level mapping + critical-dimension cap |
+| `test_m2.py` | migration idempotency, Wilson CI, channel Jaccard, stratified skeptic sample |
+| `test_m3.py` | cross-domain channel routing + decision rules, embedding cache fallback |
+| `test_m4.py` | retraction parsing, errata, Unpaywall + Europe PMC, persist idempotency |
+| `test_m5.py` | saved-search CRUD, incremental plan adaptation, digest rendering |
+| `test_m6.py` | anchor classification, PICO/boolean/filter → plan |
+| `test_m7.py` | concept map, PRISMA counts, gap-list rendering |
+| `test_m8.py` | FastAPI endpoints (skipped if fastapi not installed) |
+| `test_m9.py` | MCP tool handlers + dispatcher |
+
+No LLM, network, or GPU required.
+
+---
+
+## 11. Operational notes
 
 - **Resumability**: every stage reads/writes SQLite. If a run crashes, you can re-invoke the same `paper-discover run` and judging will pick up from `judge_status='pending'` candidates. Saturation is idempotent through the `saturation_log` primary key. Skeptic re-queues only flagged papers.
 - **Determinism**: with `judge_temperature: 0.0`, the same inputs + same models produce the same bibliography. Audit JSONL captures every LLM call for replay.
@@ -223,7 +344,7 @@ No LLM, network, or GPU is required for the test suite.
 
 ---
 
-## 9. Troubleshooting
+## 12. Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
