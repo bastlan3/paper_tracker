@@ -5,7 +5,7 @@
 - Scope: Classical experimental literature, c. 1875–1989
 - Citation format: Nature (superscript, order of first appearance)
 - Target length: ~12,000 words (body)
-- Papers in corpus: 41 (updated after third BFS pass from McBeath & Shepard seed)
+- Papers in corpus: 42 (Bundesen et al. 1983 added)
 - Generated: 2026-05-12; updated 2026-05-12
 
 ---
@@ -266,7 +266,9 @@ Two studies from the 1970s and early 1980s extended the stroboscopic paradigm to
 
 Attneave and Block³² presented two views of a wire-frame three-dimensional object at different positions in depth using stroboscopic presentation. Observers perceived the object moving through three-dimensional space along a path consistent with its three-dimensional geometry, not merely translating in the two-dimensional projection plane. This finding demonstrated that the long-range apparent motion system computed correspondences in a representation that incorporated depth structure.
 
-Petersik³³ provided a complementary demonstration using a simulated rotating sphere — a cloud of dots positioned on the surface of a sphere, with successive frames showing the sphere rotated by a small angle. Even when a substantial proportion of randomly positioned noise dots were intermixed with the signal dots, observers could perceive the coherent rotation of the sphere provided the signal-to-noise ratio exceeded threshold. This result showed that the long-range motion mechanism could extract a coherent three-dimensional motion interpretation — rigid rotation of a sphere — from a noisy random dot display, implying that 3D object models were available to the correspondence-solving mechanism. Together, these findings reinforced Shepard and Judd's¹⁵ geodesic principle and demonstrated its generality across a range of three-dimensional stimulus structures.
+Petersik³³ provided a complementary demonstration using a simulated rotating sphere — a cloud of dots positioned on the surface of a sphere, with successive frames showing the sphere rotated by a small angle. Even when a substantial proportion of randomly positioned noise dots were intermixed with the signal dots, observers could perceive the coherent rotation of the sphere provided the signal-to-noise ratio exceeded threshold. This result showed that the long-range motion mechanism could extract a coherent three-dimensional motion interpretation — rigid rotation of a sphere — from a noisy random dot display, implying that 3D object models were available to the correspondence-solving mechanism. Bundesen, Larsen, and Farrell⁴³ extended the parametric analysis to stimuli that simultaneously differed in spatial location, orientation, *and* size. Their 1983 study showed that apparent motion quality depended on all three dimensions of the transformation jointly: optimal motion was obtained when the combined "distance" in the four-dimensional space of position × orientation × size fell within the range of the motion-computing mechanism. Critically, size and orientation mismatches reduced motion quality in ways that were partially independent of spatial separation — demonstrating that the long-range process computed correspondences in a high-dimensional attribute space, not merely in the two-dimensional position plane. This result connected the size-change phenomenology first noted by Kenkel's² delta motion to the geodesic-path tradition initiated by Shepard and Judd,¹⁵ and provided the most comprehensive parametric mapping of multi-attribute apparent motion available in the classical period.
+
+Together, these findings reinforced Shepard and Judd's¹⁵ geodesic principle and demonstrated its generality across a range of three-dimensional and multi-attribute stimulus structures.
 
 ### 6.10 Farrell and Shepard (1981), Shepard (1984), and McBeath and Shepard (1989): Orientation, Path Curvature, and the Window Technique
 
@@ -574,3 +576,5 @@ Beyond the laws themselves, the classical period established that apparent motio
 41. Shepard, R. N. Ecological constraints on internal representation: resonant kinematics of perceiving, imagining, thinking, and dreaming. *Psychol. Rev.* **91**, 417–447 (1984).
 
 42. Burt, P. & Sperling, G. Time, distance, and feature trade-offs in visual apparent motion. *Psychol. Rev.* **88**, 171–195 (1981).
+
+43. Bundesen, C., Larsen, A. & Farrell, J. E. Visual apparent motion: transformations of size and orientation. *Percept. Psychophys.* **34**, 218–224 (1983).
