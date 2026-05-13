@@ -5,7 +5,7 @@
 - Scope: Classical experimental literature, c. 1875–1989
 - Citation format: Nature (superscript, order of first appearance)
 - Target length: ~12,000 words (body)
-- Papers in corpus: 38 (updated after second BFS pass; scope extended to 1989)
+- Papers in corpus: 41 (updated after third BFS pass from McBeath & Shepard seed)
 - Generated: 2026-05-12; updated 2026-05-12
 
 ---
@@ -268,7 +268,11 @@ Attneave and Block³² presented two views of a wire-frame three-dimensional obj
 
 Petersik³³ provided a complementary demonstration using a simulated rotating sphere — a cloud of dots positioned on the surface of a sphere, with successive frames showing the sphere rotated by a small angle. Even when a substantial proportion of randomly positioned noise dots were intermixed with the signal dots, observers could perceive the coherent rotation of the sphere provided the signal-to-noise ratio exceeded threshold. This result showed that the long-range motion mechanism could extract a coherent three-dimensional motion interpretation — rigid rotation of a sphere — from a noisy random dot display, implying that 3D object models were available to the correspondence-solving mechanism. Together, these findings reinforced Shepard and Judd's¹⁵ geodesic principle and demonstrated its generality across a range of three-dimensional stimulus structures.
 
-### 6.10 McBeath and Shepard (1989): The Window Technique and Path Curvature
+### 6.10 Farrell and Shepard (1981), Shepard (1984), and McBeath and Shepard (1989): Orientation, Path Curvature, and the Window Technique
+
+The theoretical context for this cluster of studies was articulated by Shepard⁴¹ in a 1984 theoretical essay that provided the first formal statement of the **kinematic geometry hypothesis**: the visual system has internalised the constraints of kinematic geometry — the mathematical structure governing the possible rigid motions of objects in three-dimensional space — and therefore "resonates" with the geodesic transformation connecting any two views of an object. Apparent motion, on this account, was not merely a low-level perceptual curiosity but a direct manifestation of internalised physical knowledge: the system experiences the simplest possible rigid movement connecting the two stimulus views, where "simplest" was defined precisely by the geodesic in the space of rigid Euclidean transformations (positions × orientations). Shepard unified the phi phenomenon, mental rotation, the geodesic percept of Shepard and Judd,¹⁵ and the three-dimensional coherence results of Petersik³³ within this single principle, interpreting all of them as resonance with kinematic regularities internalised over evolutionary time.
+
+An early empirical test of the kinematic geometry prediction for pure rotational motion was provided by Farrell and Shepard⁴⁰ in 1981. Using apparent motion between two views of polygonal shapes that differed in orientation but not in spatial position, they varied the degree of rotational symmetry of the shapes — from fully asymmetric polygons to shapes symmetric under 180° rotation — and measured the perceived direction and quality of apparent rotation as a function of angular separation. Their key findings were (a) that perceived rotation followed the *shorter* angular arc between the two views — the geodesic in orientation space — consistent with the kinematic geometry prediction; and (b) that rotational symmetry introduced predictable bistabilities: for shapes with 180° symmetry, two equally short geodesic paths existed (clockwise and counterclockwise through 90° each), and observers showed alternating competition between these paths. This bistability provided both a strong test of the geodesic principle and a demonstration that the same competition and proximity rules governing translational apparent motion governed its rotational counterpart.
 
 The most direct quantitative extension of the geodesic principle was provided by McBeath and Shepard³⁹ in 1989, who devised an elegant psychophysical method — the **window technique** — for measuring the curvature of the perceived apparent motion path rather than merely inferring it qualitatively from direction judgments. In the window technique, a visual partition was placed between the two stimulus positions, with a narrow aperture just wide enough to accommodate the moving stimulus shape. An object moving along a straight trajectory from position A to position B would traverse the window at a predictable height; an object moving along a curved arc would traverse it at a systematically different height. Observers adjusted the vertical position of the window until the apparent motion appeared to pass smoothly through it — locating the window on the perceived path — yielding a direct, observer-controlled, parametric estimate of path curvature for each stimulus configuration.
 
@@ -408,6 +412,14 @@ Ullman's central theoretical contribution was the **minimal mapping theorem**: o
 In a related journal paper published in 1980,³⁸ Ullman extended this analysis to show that the *similarity* of line-segment stimuli — their match in orientation and length — modulated the strength of apparent motion correspondence, with more similar segments producing stronger apparent motion even when distance was held constant. This result bridged the earlier figural factor literature (Kenkel,² Kolers and Pomerantz¹⁰) and the computational framework: figural similarity was a component of the correspondence cost function, not merely a post-hoc modifier of an independently established motion percept.
 
 Critically, Ullman's framework did not draw on Korte's original parametric investigations; it approached the problem from the formal tradition of mathematical optimisation and theoretical computer science. Nevertheless, it provided the most rigorous theoretical underpinning yet available for the empirical regularities that the classical psychophysical programme had documented, and it established the correspondence problem — rather than motion quality per se — as the central organising concept for subsequent computational and neural investigations of apparent motion.
+
+### 8.8 Burt and Sperling (1981): A Detector-Based Model of Apparent Motion Trade-offs
+
+A formal neural-detector model of the parametric regularities documented by Korte and Neuhaus was developed by Burt and Sperling⁴² in 1981. Where Ullman had framed apparent motion as a correspondence-cost minimisation problem — asking *what* solution the system computes — Burt and Sperling asked *how* the system computes it, proposing a family of elementary spatiotemporal detectors, each tuned to a specific spatial scale, temporal delay, and direction of motion, and all sharing the same underlying geometric structure scaled to different sizes.
+
+On this account, the trade-offs in Korte's laws arose directly from the tuning properties of the detector array. The first law (distance–SOA trade-off) reflected the requirement that the stimulus configuration match the detector's scale: larger spatial separations drove detectors of larger spatial scale, which possessed correspondingly longer temporal delay constants, necessitating longer SOAs for optimal activation. Luminance-dependent laws followed from the dependence of detector activation on the contrast energy of the stimuli. The model thus grounded the phenomenological regularities of the classical programme in a concrete, neurally plausible mechanism.
+
+Burt and Sperling also extended the analysis to multi-element ambiguous displays, in which multiple correspondence solutions competed simultaneously. The model predicted path-selection outcomes — which element appeared to move where — from the co-operative and competitive interactions between detectors of different scales, providing a mechanistic account of Brown and Voth's³⁰ vector-field effects and of Navon's¹³ proximity dominance result. The Burt–Sperling model thus occupied a complementary position to Ullman's correspondence theory: together the two frameworks constituted the most complete theoretical account of classical apparent motion available at the close of the period under review, with Ullman specifying the computational problem and Burt and Sperling specifying the algorithmic implementation.
 
 ---
 
@@ -556,3 +568,9 @@ Beyond the laws themselves, the classical period established that apparent motio
 38. Ullman, S. *The Interpretation of Visual Motion* (MIT Press, 1979); and Ullman, S. The effect of similarity between line segments on the correspondence strength of apparent motion. *Perception* **9**, 617–626 (1980).
 
 39. McBeath, M. K. & Shepard, R. N. Apparent motion between shapes differing in location and orientation: a window technique for estimating path curvature. *Percept. Psychophys.* **46**, 333–337 (1989).
+
+40. Farrell, J. E. & Shepard, R. N. Shape, orientation, and apparent rotational motion. *J. Exp. Psychol. Hum. Percept. Perform.* **7**, 477–486 (1981).
+
+41. Shepard, R. N. Ecological constraints on internal representation: resonant kinematics of perceiving, imagining, thinking, and dreaming. *Psychol. Rev.* **91**, 417–447 (1984).
+
+42. Burt, P. & Sperling, G. Time, distance, and feature trade-offs in visual apparent motion. *Psychol. Rev.* **88**, 171–195 (1981).
